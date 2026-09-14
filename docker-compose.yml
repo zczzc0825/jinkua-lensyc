@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: plynook
+      POSTGRES_USER: plynook
+      POSTGRES_PASSWORD: plynook
+    volumes: [plynook_data:/var/lib/postgresql/data]
+    healthcheck: {test: ["CMD-SHELL", "pg_isready -U plynook"], interval: 5s, timeout: 5s, retries: 10}
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://plynook:plynook@db:5432/plynook
+      SECRET_KEY: ${SECRET_KEY:-please-change-this-secret}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:?ADMIN_USERNAME is required}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
+      CORS_ORIGINS: http://localhost:3000,https://www.plynook.com,https://plynook.com,https://seller.plynook.com,https://www.seller.plynook.com
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-local}
+      QINIU_ACCESS_KEY: ${QINIU_ACCESS_KEY:-}
+      QINIU_SECRET_KEY: ${QINIU_SECRET_KEY:-}
+      QINIU_BUCKET: ${QINIU_BUCKET:-plynook}
+      QINIU_DOMAIN: ${QINIU_DOMAIN:-}
+      QINIU_PREFIX: ${QINIU_PREFIX:-uploads}
+    ports: ["127.0.0.1:8000:8000"]
+    volumes: [./backend/storage:/app/storage]
+    depends_on: {db: {condition: service_healthy}}
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    environment: {API_URL: http://backend:8000}
+    ports: ["127.0.0.1:3000:3000"]
+    depends_on: [backend]
+volumes: {plynook_data: {}}
