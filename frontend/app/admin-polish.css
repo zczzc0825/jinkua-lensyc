@@ -1,4 +1,4 @@
-/* Compact admin polish. Brand artwork is intentionally absent. */
+/* Compact admin polish. */
 
 .admin-shell {
   --admin-ink: #202228;
@@ -23,6 +23,21 @@
   background: #1c1e24;
   color: #fff;
   box-shadow: none;
+}
+
+.admin-wordmark {
+  width: 152px;
+  height: 44px;
+  margin: 0 9px 14px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.admin-wordmark img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 .admin-side-intro {
@@ -311,7 +326,7 @@ html[data-theme="dark"] .admin-shell .admin-modal {
   box-shadow: 0 24px 80px rgba(18, 22, 31, .2);
 }
 
-/* Login screen, intentionally text-only. */
+/* Login screen. */
 .login-page,
 html[data-theme="dark"] body .login-page {
   position: relative;
@@ -362,6 +377,13 @@ html[data-theme="dark"] body .login-page .login-card {
   margin-bottom: 24px;
   padding-bottom: 24px;
   border-bottom: 1px solid #e8e9ec;
+}
+
+.login-wordmark {
+  width: 178px;
+  height: auto;
+  margin: -12px 0 10px;
+  display: block;
 }
 
 .login-card-head > span {

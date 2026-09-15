@@ -22,15 +22,27 @@ export default async function Home({ params }: { params: Promise<{ locale: Local
     ko: { categories: "카테고리로 보기" },
   } satisfies Record<Locale, { categories: string }>;
   const intro = introByLocale[locale] || introByLocale.en;
+  const directoryByLocale = {
+    zh: { eyebrow: "02 / 精选目录", title: "从一件好物开始，布置属于你的空间。", body: "按用途与氛围浏览。每一个分类，都只保留值得被看见的物件。", all: "查看全部商品", discover: "浏览分类" },
+    en: { eyebrow: "02 / The directory", title: "Begin with one good object.", body: "Browse by purpose and atmosphere. Each category is edited down to the pieces worth noticing.", all: "View all objects", discover: "Browse category" },
+    ja: { eyebrow: "02 / セレクト目録", title: "ひとつの良いものから、空間をつくる。", body: "用途と雰囲気から探す、選び抜かれたオブジェのための小さな目録です。", all: "すべての商品", discover: "カテゴリーを見る" },
+    ko: { eyebrow: "02 / 셀렉트 디렉터리", title: "좋은 물건 하나에서 공간을 시작하세요.", body: "용도와 분위기에 따라 살펴보세요. 눈여겨볼 가치가 있는 오브제만 남겼습니다.", all: "전체 상품 보기", discover: "카테고리 보기" },
+  } satisfies Record<Locale, { eyebrow: string; title: string; body: string; all: string; discover: string }>;
+  const directory = directoryByLocale[locale] || directoryByLocale.en;
   const categoryStories = [
     { name: "Art Toys", image: "https://images.unsplash.com/photo-1634152962476-4b8a00e1915c?auto=format&fit=crop&w=1200&q=88", text: "Collectible characters with expressive little moods." },
     { name: "Home Decor", image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=88", text: "Quiet objects that give a room its own rhythm." },
     { name: "Desk Objects", image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=88", text: "Useful companions for workdays and late ideas." },
     { name: "Gifts", image: "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=1200&q=88", text: "Unexpected pieces chosen for thoughtful giving." },
-  ].map((item, index) => ({
-    ...item,
-    href: data.featured_categories[index]?.slug ? `/${locale}/categories/${data.featured_categories[index].slug}` : `/${locale}/products`,
-  }));
+  ].map((item, index) => {
+    const source = data.featured_categories[index];
+    return {
+      ...item,
+      name: source?.name || item.name,
+      text: source?.description || item.text,
+      href: source?.slug ? `/${locale}/categories/${source.slug}` : `/${locale}/products`,
+    };
+  });
 
   return <main className="home-page">
     <section className="container lifestyle-hero">
@@ -72,15 +84,19 @@ export default async function Home({ params }: { params: Promise<{ locale: Local
       <div className="product-grid home-product-grid">{data.new_arrivals.slice(0, 4).map(product => <ProductCard key={product.id} product={product} locale={locale} />)}</div>
     </section>
 
-    <section className="section container home-categories-section">
-      <div className="section-head">
-        <div><span className="eyebrow">02 / The rooms</span><h2>{m.featuredCategories}</h2></div>
-        <Link href={`/${locale}/products`}>{m.explore} <ArrowRight size={15} /></Link>
+    <section className="section container home-categories-section category-directory-section">
+      <div className="category-directory-intro">
+        <span className="eyebrow">{directory.eyebrow}</span>
+        <h2>{directory.title}</h2>
+        <p>{directory.body}</p>
+        <Link className="category-directory-all" href={`/${locale}/products`}>{directory.all} <ArrowRight size={15} /></Link>
       </div>
-      <div className="category-grid lifestyle-bento">
-        {categoryStories.map((category, index) => <Link className={`category-card bento-card bento-${index + 1}`} key={category.name} href={category.href}>
-          <img src={category.image} alt={category.name} />
-          <div><span className="category-index">0{index + 1}</span><h3>{category.name}</h3><p>{category.text}</p><b>Discover <ArrowRight size={14} /></b></div>
+      <div className="category-directory-list">
+        {categoryStories.map((category, index) => <Link className="category-directory-item" key={category.name} href={category.href}>
+          <span className="category-directory-index">0{index + 1}</span>
+          <div className="category-directory-image"><img src={category.image} alt="" /></div>
+          <div className="category-directory-copy"><h3>{category.name}</h3><p>{category.text}</p><small>{directory.discover}</small></div>
+          <span className="category-directory-arrow" aria-hidden="true"><ArrowRight size={16} /></span>
         </Link>)}
       </div>
     </section>

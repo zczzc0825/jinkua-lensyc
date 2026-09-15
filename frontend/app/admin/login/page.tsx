@@ -37,6 +37,7 @@ export default function Login() {
     <main className="login-page">
       <form className="login-card" onSubmit={submit}>
         <header className="login-card-head">
+          <img className="login-wordmark" src="/brand/logo_black.png" alt="cooolmake" />
           <span>Secure workspace</span>
           <h1>欢迎回来</h1>
           <p>登录后管理商品、内容和询价数据。</p>

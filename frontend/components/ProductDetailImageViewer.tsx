@@ -45,7 +45,7 @@ export function ProductDetailImageViewer({
       <span className="detail-image-teaser-copy">
         <span className="detail-image-teaser-icon"><Images size={22} /></span>
         <span>
-          <span className="eyebrow">Plynook</span>
+          <span className="eyebrow">cooolmake</span>
           <strong id="detail-images-title">{title}</strong>
           <small>{labels.hint} · {images.length} {labels.count}</small>
         </span>
@@ -60,7 +60,7 @@ export function ProductDetailImageViewer({
       <div className="detail-image-modal-panel" onMouseDown={event => event.stopPropagation()}>
         <div className="detail-image-modal-head">
           <div>
-            <span className="eyebrow">Plynook</span>
+            <span className="eyebrow">cooolmake</span>
             <h2 id="detail-image-modal-title">{title}</h2>
             <p>{productTitle} · {images.length} {labels.count}</p>
           </div>

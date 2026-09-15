@@ -52,8 +52,9 @@ export function Header({ locale }: { locale: Locale }) {
       <span>Worldwide delivery · Personal sourcing</span>
     </div>
     <nav className="nav">
-      <Link className="brand-logo brand-slot" href={`/${locale}`} aria-label="Home">
-        <span className="brand-slot-empty" aria-hidden="true" />
+      <Link className="brand-logo brand-slot" href={`/${locale}`} aria-label="cooolmake home">
+        <img className="brand-logo-light" src="/brand/logo_black.png" alt="" aria-hidden="true" />
+        <img className="brand-logo-dark" src="/brand/logo_w.png" alt="" aria-hidden="true" />
       </Link>
       <div className="nav-links">{menu}</div>
       <div className="nav-actions">
@@ -99,8 +100,9 @@ export function Footer({ locale }: { locale: Locale }) {
 
   return <footer className="footer">
     <div className="container footer-intro">
-      <Link className="brand-logo brand-slot footer-brand-slot" href={`/${locale}`} aria-label="Home">
-        <span className="brand-slot-empty" aria-hidden="true" />
+      <Link className="brand-logo brand-slot footer-brand-slot" href={`/${locale}`} aria-label="cooolmake home">
+        <img className="brand-logo-light" src="/brand/logo_black.png" alt="" aria-hidden="true" />
+        <img className="brand-logo-dark" src="/brand/logo_w.png" alt="" aria-hidden="true" />
       </Link>
       <h2>Objects that make a room feel <em>lived in.</em></h2>
     </div>
@@ -128,7 +130,7 @@ export function Footer({ locale }: { locale: Locale }) {
       </div>
     </div>
     <div className="container footer-bottom">
-      <span>© {new Date().getFullYear()} Plynook</span>
+      <span>© {new Date().getFullYear()} cooolmake</span>
       <span>Curated with intention · Shipped worldwide</span>
       <span>Privacy · Terms</span>
     </div>

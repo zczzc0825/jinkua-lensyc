@@ -27,7 +27,7 @@ export function ProductCard({ product, locale }: { product: Product; locale: Loc
       </div>
     </Link>
     <div className="product-info">
-      <div className="product-card-meta"><span>{product.category?.name || "Plynook edit"}</span><span>{product.product_code}</span></div>
+      <div className="product-card-meta"><span>{product.category?.name || "cooolmake edit"}</span><span>{product.product_code}</span></div>
       <Link href={`/${locale}/product/${product.slug}`}><h3>{product.title}</h3></Link>
       <p>{product.short_description}</p>
       {price != null && <div className="price-row">

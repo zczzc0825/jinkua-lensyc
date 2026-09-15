@@ -67,7 +67,7 @@ export function ProductDetailActions({ product, locale }: { product: Product; lo
   };
   const openShare = (target: "x" | "whatsapp" | "facebook") => {
     const url = encodeURIComponent(location.href);
-    const text = encodeURIComponent(`${product.title} · Plynook`);
+    const text = encodeURIComponent(`${product.title} · cooolmake`);
     const links = {
       x: `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
       whatsapp: `https://wa.me/?text=${text}%20${url}`,

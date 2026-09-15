@@ -16,11 +16,11 @@ export default async function About({ params }: { params: Promise<{ locale: Loca
       <div>
         <span className="eyebrow">Our point of view</span>
         <h1 className="page-title">{m.brandStory}</h1>
-        <p>Plynook is an independent edit of art toys, desk companions and expressive home objects.</p>
+        <p>cooolmake is an independent edit of art toys, desk companions and expressive home objects.</p>
       </div>
       <div className="about-hero-mark"><span>Journal note · 01</span><p>We believe the most personal rooms are assembled slowly, one curious object at a time.</p><ArrowDownRight /></div>
     </header>
-    <div className="about-image-triptych">{images.map((image, index) => <img src={image} alt={`Plynook lifestyle ${index + 1}`} key={image} />)}</div>
+    <div className="about-image-triptych">{images.map((image, index) => <img src={image} alt={`cooolmake lifestyle ${index + 1}`} key={image} />)}</div>
     <section className="about-copy-card"><h2>A slower edit</h2><p>{m.aboutBody}</p></section>
     <section className="about-copy-card"><h2>{m.buying}</h2><p>{m.buyingBody}</p><Link className="btn btn-accent" href={`/${locale}/products`}>Explore products <ArrowRight size={18} /></Link></section>
   </main>;

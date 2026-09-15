@@ -11,7 +11,7 @@ export default async function Products({ params, searchParams }: {
   const m = t(locale);
   return <main className="container">
     <header className="page-hero">
-      <span className="eyebrow">Plynook edit</span>
+      <span className="eyebrow">cooolmake edit</span>
       <h1 className="page-title">{m.products}</h1>
       <p className="muted">Art toys, useful oddities and small joys for spaces with personality.</p>
     </header>

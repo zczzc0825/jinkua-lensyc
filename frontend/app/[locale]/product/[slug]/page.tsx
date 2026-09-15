@@ -11,8 +11,8 @@ import { Locale } from "@/lib/types";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: Locale; slug: string }> }) {
   const { locale, slug } = await params;
-  try { const product = await api.product(slug, locale); return { title: product.title, description: product.short_description, openGraph: { title: product.title, description: product.short_description, images: product.main_image ? [product.main_image] : [] }, alternates: { canonical: `/${locale}/product/${slug}`, languages: Object.fromEntries(locales.map(item => [item, `/${item}/product/${slug}`])) } }; }
-  catch { return { title: "Product" }; }
+  try { const product = await api.product(slug, locale); return { title: `${product.title} — cooolmake`, description: product.short_description, openGraph: { title: product.title, description: product.short_description, images: product.main_image ? [product.main_image] : [] }, alternates: { canonical: `/${locale}/product/${slug}`, languages: Object.fromEntries(locales.map(item => [item, `/${item}/product/${slug}`])) } }; }
+  catch { return { title: "Product — cooolmake" }; }
 }
 
 export default async function Detail({ params }: { params: Promise<{ locale: Locale; slug: string }> }) {
@@ -65,7 +65,7 @@ export default async function Detail({ params }: { params: Promise<{ locale: Loc
         <div className="spec-grid">{specs.filter(item => item[1]).map(([label, value]) => <div className="spec" key={label}><span>{label}</span><strong>{value}</strong></div>)}</div>
         <section className="listing-details" aria-labelledby="listing-details-title">
           <div className="listing-details-head">
-            <span className="eyebrow">Plynook</span>
+            <span className="eyebrow">cooolmake</span>
             <h2 id="listing-details-title">{listingTitle}</h2>
           </div>
           <div className="listing-details-grid">

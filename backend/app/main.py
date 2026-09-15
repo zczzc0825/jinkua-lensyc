@@ -540,7 +540,7 @@ def translate_zh(value: Optional[str], target: str = "en") -> Optional[str]:
         translated_parts = []
         for start in range(0, len(text_value), 140):
             chunk = text_value[start:start + 140]
-            response = httpx.get("https://api.mymemory.translated.net/get", params={"q": chunk, "langpair": TRANSLATION_LANGPAIRS[target]}, headers={"User-Agent": "Plynook/1.0"}, timeout=8)
+            response = httpx.get("https://api.mymemory.translated.net/get", params={"q": chunk, "langpair": TRANSLATION_LANGPAIRS[target]}, headers={"User-Agent": "cooolmake/1.0"}, timeout=8)
             response.raise_for_status()
             payload = response.json()
             translated_parts.append(payload["responseData"]["translatedText"])
@@ -778,7 +778,7 @@ def fetch_daily_exchange_rates(existing: Optional[Dict[str, Any]] = None, existi
     if _exchange_rate_cache.get("date") == today and _exchange_rate_cache.get("rates"):
         return dict(_exchange_rate_cache["rates"]), today
     try:
-        response = httpx.get("https://open.er-api.com/v6/latest/CNY", headers={"User-Agent": "Plynook/1.0"}, timeout=15)
+        response = httpx.get("https://open.er-api.com/v6/latest/CNY", headers={"User-Agent": "cooolmake/1.0"}, timeout=15)
         response.raise_for_status()
         payload = response.json()
         if payload.get("result") != "success" or not payload.get("rates"):
@@ -852,7 +852,7 @@ def procurement_excel(quote: ProcurementQuote, db: Session) -> io.BytesIO:
     money_format = '¥#,##0.00'
 
     summary.merge_cells("A1:E1")
-    summary["A1"] = f"Plynook 采购报价单 · {quote.quote_code}"
+    summary["A1"] = f"cooolmake 采购报价单 · {quote.quote_code}"
     summary["A1"].font = title_font
     summary["A1"].fill = soft_fill
     summary["A1"].alignment = Alignment(vertical="center")
@@ -1192,7 +1192,7 @@ def current_user(authorization: Optional[str] = Header(None), db: Session = Depe
     return user
 
 
-app = FastAPI(title="Plynook API", version="1.0.0")
+app = FastAPI(title="cooolmake API", version="1.0.0")
 app.add_middleware(CORSMiddleware, allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000").split(","), allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 app.mount("/storage", StaticFiles(directory=STORAGE_DIR), name="storage")
 
@@ -2331,10 +2331,13 @@ def seed():
             if not user.created_at: user.created_at = now
             if not user.updated_at: user.updated_at = now
             user.role = "super_admin" if user.username == "17605901054@163.com" else (user.role or "admin")
-        settings = {"site_name": "Plynook", "whatsapp_phone_number": "85200000000", "contact_email": "plynook001@gmail.com", "instagram_url": "https://instagram.com", "tiktok_url": "https://tiktok.com", "x_url": "https://x.com", "pinterest_url": "https://pinterest.com", "show_prices": True, "default_locale": "en"}
+        settings = {"site_name": "cooolmake", "whatsapp_phone_number": "85200000000", "contact_email": "plynook001@gmail.com", "instagram_url": "https://instagram.com", "tiktok_url": "https://tiktok.com", "x_url": "https://x.com", "pinterest_url": "https://pinterest.com", "show_prices": True, "default_locale": "en"}
         for key, value in settings.items():
             if not db.query(SiteSetting).filter(SiteSetting.key == key).first():
                 db.add(SiteSetting(key=key, value=value))
+        site_name_setting = db.query(SiteSetting).filter(SiteSetting.key == "site_name").first()
+        if site_name_setting and str(site_name_setting.value).strip().lower() == "plynook":
+            site_name_setting.value = "cooolmake"
         if os.getenv("ENABLE_DEMO_SEED", "").lower() in {"1", "true", "yes"} and not db.query(Category).first():
             cats = [Category(slug="art-toys", name_en="Art Toys", name_ja="アートトイ", name_ko="아트 토이", name_zh="潮玩摆件", description_en="Collectible characters with a playful point of view."), Category(slug="home-decor", name_en="Home Decor", name_ja="ホームデコ", name_ko="홈 데코", name_zh="家居装饰", description_en="Small objects that make a room feel yours."), Category(slug="desk-accessories", name_en="Desk Accessories", name_ja="デスク用品", name_ko="데스크 용품", name_zh="桌面用品", description_en="Tiny upgrades for better desk days."), Category(slug="gifts", name_en="Gifts", name_ja="ギフト", name_ko="선물", name_zh="礼品", description_en="Unexpected gifts for delightful people.")]
             db.add_all(cats); db.flush()

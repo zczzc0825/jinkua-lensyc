@@ -25,7 +25,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ local
   return (
     <main className="container">
       <header className="page-hero">
-        <span className="eyebrow">Plynook collection</span>
+        <span className="eyebrow">cooolmake collection</span>
         <h1 className="page-title">{category.name}</h1>
         <p>{category.description}</p>
       </header>

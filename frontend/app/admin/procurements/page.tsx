@@ -194,7 +194,7 @@ export default function ProcurementQuotesPage() {
     finally { setDeletingQuoteId(null); }
   }
   async function copyShare(quote: any) {
-    await navigator.clipboard.writeText(`Hello, here is your Plynook procurement quotation.\nLink: ${publicUrl(quote)}\nPassword: ${quote.access_password}\nYour login will stay active on this device for 30 days.`);
+    await navigator.clipboard.writeText(`Hello, here is your cooolmake procurement quotation.\nLink: ${publicUrl(quote)}\nPassword: ${quote.access_password}\nYour login will stay active on this device for 30 days.`);
     setSaved("客户链接和密码已复制");
   }
   async function exportExcel(quote: any) {

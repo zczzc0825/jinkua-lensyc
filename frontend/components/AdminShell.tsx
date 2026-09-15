@@ -49,8 +49,11 @@ export function AdminShell({ title, actions, children }: { title: string; action
   if (!me) return <div className="loading">正在验证管理员身份…</div>;
   const visibleLinks = me.role === "super_admin" ? [...links, ...superLinks] : links;
 
-  return <div className="admin-shell">
+    return <div className="admin-shell">
     <aside className="admin-side">
+      <Link className="admin-wordmark" href="/admin/dashboard" aria-label="cooolmake 管理后台">
+        <img src="/brand/logo_w.png" alt="cooolmake" />
+      </Link>
       <div className="admin-side-intro">
         <span>Workspace</span>
         <strong>内容管理后台</strong>

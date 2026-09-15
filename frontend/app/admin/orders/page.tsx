@@ -36,10 +36,10 @@ const blankOrder: any = {
 };
 const statusText: Record<string, string> = { draft: "草稿", pending_confirm: "待客户确认", customer_confirmed: "客户已确认", paid: "已支付", shipped: "已发货", completed: "已完成", cancelled: "已取消" };
 const copyText: Record<string, (order: any, url: string) => string> = {
-  zh: (order, url) => `您好，这是您的 Plynook 商品订单确认页。\n订单号：${order.order_code}\n订单链接：${url}\n打开密码：${order.access_password}\n\n请妥善保管好信息。如遗忘密码，可以通过订单号或付款记录联系客服获取订单页信息。详情页包含您的个人信息、电话和地址，请您确认；确认后个人信息将隐藏且无法再次自行修改，如需修改请联系客服。`,
-  en: (order, url) => `Hello, this is your Plynook order confirmation page.\nOrder No.: ${order.order_code}\nOrder link: ${url}\nPassword: ${order.access_password}\n\nPlease keep this information safe. If you forget the password, contact us with your order number or payment record. The page contains your personal information, phone number and address. Please confirm carefully; after confirmation, personal information will be hidden and cannot be edited by yourself. Please contact customer service if changes are needed.`,
-  ja: (order, url) => `こんにちは。こちらは Plynook のご注文確認ページです。\n注文番号：${order.order_code}\nリンク：${url}\nパスワード：${order.access_password}\n\n情報を大切に保管してください。パスワードを忘れた場合は、注文番号または支払い記録でお問い合わせください。ページにはお名前、電話番号、住所が含まれます。確認後、個人情報は非表示となり、ご自身では変更できません。変更が必要な場合はカスタマーサービスへご連絡ください。`,
-  ko: (order, url) => `안녕하세요. Plynook 주문 확인 페이지입니다.\n주문번호: ${order.order_code}\n주문 링크: ${url}\n비밀번호: ${order.access_password}\n\n해당 정보를 안전하게 보관해 주세요. 비밀번호를 잊으신 경우 주문번호 또는 결제 기록으로 고객센터에 문의해 주세요. 페이지에는 개인정보, 전화번호, 주소가 포함되어 있습니다. 확인 후 개인정보는 숨김 처리되며 직접 수정할 수 없습니다. 수정이 필요한 경우 고객센터로 문의해 주세요.`,
+  zh: (order, url) => `您好，这是您的 cooolmake 商品订单确认页。\n订单号：${order.order_code}\n订单链接：${url}\n打开密码：${order.access_password}\n\n请妥善保管好信息。如遗忘密码，可以通过订单号或付款记录联系客服获取订单页信息。详情页包含您的个人信息、电话和地址，请您确认；确认后个人信息将隐藏且无法再次自行修改，如需修改请联系客服。`,
+  en: (order, url) => `Hello, this is your cooolmake order confirmation page.\nOrder No.: ${order.order_code}\nOrder link: ${url}\nPassword: ${order.access_password}\n\nPlease keep this information safe. If you forget the password, contact us with your order number or payment record. The page contains your personal information, phone number and address. Please confirm carefully; after confirmation, personal information will be hidden and cannot be edited by yourself. Please contact customer service if changes are needed.`,
+  ja: (order, url) => `こんにちは。こちらは cooolmake のご注文確認ページです。\n注文番号：${order.order_code}\nリンク：${url}\nパスワード：${order.access_password}\n\n情報を大切に保管してください。パスワードを忘れた場合は、注文番号または支払い記録でお問い合わせください。ページにはお名前、電話番号、住所が含まれます。確認後、個人情報は非表示となり、ご自身では変更できません。変更が必要な場合はカスタマーサービスへご連絡ください。`,
+  ko: (order, url) => `안녕하세요. cooolmake 주문 확인 페이지입니다.\n주문번호: ${order.order_code}\n주문 링크: ${url}\n비밀번호: ${order.access_password}\n\n해당 정보를 안전하게 보관해 주세요. 비밀번호를 잊으신 경우 주문번호 또는 결제 기록으로 고객센터에 문의해 주세요. 페이지에는 개인정보, 전화번호, 주소가 포함되어 있습니다. 확인 후 개인정보는 숨김 처리되며 직접 수정할 수 없습니다. 수정이 필요한 경우 고객센터로 문의해 주세요.`,
 };
 
 export default function OrdersPage() {
