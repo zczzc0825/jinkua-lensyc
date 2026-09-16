@@ -48,9 +48,11 @@ QINIU_SECRET_KEY = os.getenv("QINIU_SECRET_KEY", "").strip()
 QINIU_BUCKET = os.getenv("QINIU_BUCKET", "plynook").strip()
 QINIU_DOMAIN = os.getenv("QINIU_DOMAIN", "").strip().rstrip("/")
 QINIU_PREFIX = os.getenv("QINIU_PREFIX", "uploads").strip().strip("/")
+SITE_URL = os.getenv("SITE_URL", "https://www.plynook.com").rstrip("/")
 logger = logging.getLogger("uvicorn.error")
 DEDUPE_ANALYTICS_EVENTS = {"page_view", "product_view", "whatsapp_click"}
 SLUG_FALLBACK_PREFIX = "item"
+SUPER_ADMIN_USERNAMES = {"17605901054@163.com", "1263898899@qq.com"}
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {})
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
@@ -862,7 +864,7 @@ def procurement_excel(quote: ProcurementQuote, db: Session) -> io.BytesIO:
     summary_rows = [
         ("报价单号", quote.quote_code, "状态", quote.status),
         ("报价单标题", quote.title, "客户名称", quote.customer_name or ""),
-        ("客户访问地址", f"https://www.plynook.com/en/procurement/{quote.quote_code}", "打开密码", quote.access_password),
+        ("客户访问地址", f"{SITE_URL}/en/procurement/{quote.quote_code}", "打开密码", quote.access_password),
         ("默认币种", quote.preferred_currency or "USD", "汇率日期", quote.rates_date or ""),
         ("客户预期到货时间", quote.expected_arrival_local or "", "客户时区", quote.customer_timezone or ""),
         ("换算后北京时间", quote.expected_arrival_china or "", "发布时间", quote.published_at or ""),
@@ -2324,13 +2326,13 @@ def seed():
             admin_username = os.getenv("ADMIN_USERNAME", "").strip()
             admin_password = os.getenv("ADMIN_PASSWORD", "").strip()
             if admin_username and admin_password:
-                db.add(User(username=admin_username, nickname=admin_username, password_hash=pwd_context.hash(admin_password), role="super_admin" if admin_username == "17605901054@163.com" else "admin"))
+                db.add(User(username=admin_username, nickname=admin_username, password_hash=pwd_context.hash(admin_password), role="super_admin" if admin_username in SUPER_ADMIN_USERNAMES else "admin"))
         now = datetime.utcnow()
         for user in db.query(User).all():
             if not user.nickname: user.nickname = user.username
             if not user.created_at: user.created_at = now
             if not user.updated_at: user.updated_at = now
-            user.role = "super_admin" if user.username == "17605901054@163.com" else (user.role or "admin")
+            user.role = "super_admin" if user.username in SUPER_ADMIN_USERNAMES else (user.role or "admin")
         settings = {"site_name": "cooolmake", "whatsapp_phone_number": "85200000000", "contact_email": "plynook001@gmail.com", "instagram_url": "https://instagram.com", "tiktok_url": "https://tiktok.com", "x_url": "https://x.com", "pinterest_url": "https://pinterest.com", "show_prices": True, "default_locale": "en"}
         for key, value in settings.items():
             if not db.query(SiteSetting).filter(SiteSetting.key == key).first():

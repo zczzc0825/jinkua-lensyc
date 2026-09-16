@@ -5,6 +5,7 @@ import { ArrowDown, ArrowUp, ClipboardList, Copy, ExternalLink, GripVertical, Pl
 import { useRouter } from "next/navigation";
 import { AdminShell } from "@/components/AdminShell";
 import { adminFetch } from "@/lib/api";
+import { copyToClipboard, uuid } from "@/lib/secure";
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const blank: any = {
@@ -263,7 +264,7 @@ export default function Products() {
       setTrafficLoading(false);
     }
   }
-  const copyId = (code: string) => navigator.clipboard.writeText(code);
+  const copyId = (code: string) => copyToClipboard(code);
   const field = (key: string, label: string, wide = false, type = "text", required = false) => <label className={wide ? "wide" : ""}>{label}<input className="field" type={type} required={required} value={edit[key] ?? ""} onChange={event => setEdit({ ...edit, [key]: type === "number" ? Number(event.target.value) : event.target.value })} /></label>;
   const imageListEditor = (key: "gallery_images" | "detail_images", title: string, hint: string) => <div className="wide image-list-editor">
     <div className="image-list-header">
@@ -283,7 +284,7 @@ export default function Products() {
     </div>
   </div>;
 
-  return <AdminShell title="商品管理" actions={<button className="btn btn-primary" onClick={() => setEdit({ ...blank, _create_request_id: crypto.randomUUID() })}><Plus size={16} />新增商品</button>}>
+  return <AdminShell title="商品管理" actions={<button className="btn btn-primary" onClick={() => setEdit({ ...blank, _create_request_id: uuid() })}><Plus size={16} />新增商品</button>}>
     {edit && <div className="panel">
       <div className="admin-header"><div><h2>{edit.id ? "编辑商品" : "新增商品"}</h2><p className="muted">以中文录入，保存时自动生成英文内容；英文前台为默认展示。</p></div><button className="btn btn-soft" onClick={() => setEdit(null)}><X /></button></div>
       <form className="form-grid" onSubmit={save}>

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Copy, Plus, RefreshCcw, Save, Search, Trash2, X } from "lucide-react";
 import { AdminShell } from "@/components/AdminShell";
 import { adminFetch } from "@/lib/api";
+import { copyToClipboard } from "@/lib/secure";
 
 const blankItem = { product_code: "", title: "", image: "", quantity: 1, unit_price: 0 };
 const blankOrder: any = {
@@ -106,11 +107,11 @@ export default function OrdersPage() {
     return { className: "unpaid", label: "未付款" };
   }
   function orderUrl(order: any, locale = copyLocale) {
-    return `https://www.plynook.com/${locale}/order/${order.order_code}`;
+    return `${location.origin}/${locale}/order/${order.order_code}`;
   }
   async function copyMessage(order: any) {
     const locale = copyLocale in copyText ? copyLocale : "zh";
-    await navigator.clipboard.writeText(copyText[locale](order, orderUrl(order, locale)));
+    await copyToClipboard(copyText[locale](order, orderUrl(order, locale)));
     setCopied(order.order_code);
     setTimeout(() => setCopied(""), 1800);
   }
@@ -125,7 +126,7 @@ export default function OrdersPage() {
     {edit && <div className="panel order-editor">
       <div className="admin-header"><div><h2>{edit.id ? `编辑订单 ${edit.order_code}` : "新增订单确认页"}</h2><p className="muted">生成后复制 WhatsApp 文案发给客户，客户输入密码确认信息。</p></div><button className="btn btn-soft" onClick={() => setEdit(null)}><X /></button></div>
       <form className="form-grid" onSubmit={save}>
-        {edit.order_code && <div className="wide order-share-box"><div><span>订单链接</span><strong>{orderUrl(edit, edit.locale || "zh")}</strong><small>打开密码：{edit.access_password}</small></div><button type="button" className="btn btn-soft" onClick={() => navigator.clipboard.writeText(orderUrl(edit, edit.locale || "zh"))}><Copy size={15} />复制链接</button><button type="button" className="btn btn-soft" onClick={() => resetPassword(edit)}><RefreshCcw size={15} />重置密码</button></div>}
+        {edit.order_code && <div className="wide order-share-box"><div><span>订单链接</span><strong>{orderUrl(edit, edit.locale || "zh")}</strong><small>打开密码：{edit.access_password}</small></div><button type="button" className="btn btn-soft" onClick={() => copyToClipboard(orderUrl(edit, edit.locale || "zh"))}><Copy size={15} />复制链接</button><button type="button" className="btn btn-soft" onClick={() => resetPassword(edit)}><RefreshCcw size={15} />重置密码</button></div>}
         <label>订单语言<select className="field" value={edit.locale || "zh"} onChange={event => setField("locale", event.target.value)}><option value="zh">中文</option><option value="en">English</option><option value="ja">日本語</option><option value="ko">한국어</option></select></label>
         <label>订单状态<select className="field" value={edit.status || "pending_confirm"} onChange={event => setField("status", event.target.value)}>{Object.entries(statusText).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
         <label>支付方式<input className="field" value={edit.payment_method || ""} onChange={event => setField("payment_method", event.target.value)} /></label>
@@ -156,7 +157,7 @@ export default function OrdersPage() {
     <div className="panel">
       <form className="admin-product-search" onSubmit={event => { event.preventDefault(); load(keyword, paymentFilter); }}><div><strong>搜索订单</strong><p className="muted">订单从商品管理里点击“生成订单”创建；这里按订单号、客户姓名、电话搜索。</p></div><input className="field" value={keyword} onChange={event => setKeyword(event.target.value)} placeholder="例如 PO20260810" /><button className="btn btn-primary"><Search size={16} />搜索</button>{keyword && <button type="button" className="btn btn-soft" onClick={() => { setKeyword(""); load("", paymentFilter); }}>清除</button>}</form>
       <div className="order-filter-bar"><button className={!paymentFilter ? "active" : ""} onClick={() => { setPaymentFilter(""); load(keyword, ""); }}>全部订单</button><button className={paymentFilter === "paid" ? "active paid" : "paid"} onClick={() => { setPaymentFilter("paid"); load(keyword, "paid"); }}>已付款</button><button className={paymentFilter === "unpaid" ? "active unpaid" : "unpaid"} onClick={() => { setPaymentFilter("unpaid"); load(keyword, "unpaid"); }}>未付款</button></div>
-      <table className="table"><thead><tr><th>订单号</th><th>状态</th><th>商品</th><th>总价</th><th>支付</th><th>客户确认</th><th>物流</th><th>创建人</th><th>最后处理人</th><th>操作</th></tr></thead><tbody>{items.map(order => { const state = paymentState(order); const isCancelled = order.status === "cancelled"; return <tr key={order.id} className={isCancelled ? "order-row-cancelled" : ""}><td><button className="copy-code" onClick={() => navigator.clipboard.writeText(order.order_code)}>{order.order_code}<Copy size={13} /></button></td><td><span className={`order-state-dot ${state.className}`}><i />{state.label}</span></td><td>{(order.items || []).slice(0, 2).map((item: any) => <div key={`${order.id}-${item.product_code}-${item.title}`}>{item.product_code} · {item.title} × {item.quantity}</div>)}</td><td>{displayMoney(order)}</td><td>{displayPayment(order)}<div className="muted">{displayPaymentMethod(order)}</div></td><td>{displayConfirm(order)}</td><td><div>头程：{displayTracking(order, order.first_tracking_no)}</div><div>尾程：{displayTracking(order, order.last_tracking_no)}</div></td><td>{order.created_by || "—"}</td><td>{order.updated_by || "—"}</td><td><div className="table-actions"><button className="table-action" onClick={() => setEdit(order)}>编辑</button><button className="table-action table-action-primary" onClick={() => copyMessage(order)}><Copy size={14} />文案</button><button className="table-action table-action-danger" disabled={isCancelled} onClick={() => cancelOrder(order)}>{isCancelled ? "已取消" : "取消"}</button></div></td></tr>; })}</tbody></table>
+      <table className="table"><thead><tr><th>订单号</th><th>状态</th><th>商品</th><th>总价</th><th>支付</th><th>客户确认</th><th>物流</th><th>创建人</th><th>最后处理人</th><th>操作</th></tr></thead><tbody>{items.map(order => { const state = paymentState(order); const isCancelled = order.status === "cancelled"; return <tr key={order.id} className={isCancelled ? "order-row-cancelled" : ""}><td><button className="copy-code" onClick={() => copyToClipboard(order.order_code)}>{order.order_code}<Copy size={13} /></button></td><td><span className={`order-state-dot ${state.className}`}><i />{state.label}</span></td><td>{(order.items || []).slice(0, 2).map((item: any) => <div key={`${order.id}-${item.product_code}-${item.title}`}>{item.product_code} · {item.title} × {item.quantity}</div>)}</td><td>{displayMoney(order)}</td><td>{displayPayment(order)}<div className="muted">{displayPaymentMethod(order)}</div></td><td>{displayConfirm(order)}</td><td><div>头程：{displayTracking(order, order.first_tracking_no)}</div><div>尾程：{displayTracking(order, order.last_tracking_no)}</div></td><td>{order.created_by || "—"}</td><td>{order.updated_by || "—"}</td><td><div className="table-actions"><button className="table-action" onClick={() => setEdit(order)}>编辑</button><button className="table-action table-action-primary" onClick={() => copyMessage(order)}><Copy size={14} />文案</button><button className="table-action table-action-danger" disabled={isCancelled} onClick={() => cancelOrder(order)}>{isCancelled ? "已取消" : "取消"}</button></div></td></tr>; })}</tbody></table>
       {items.length === 0 && <div className="empty">没有找到订单</div>}
     </div>
   </AdminShell>;

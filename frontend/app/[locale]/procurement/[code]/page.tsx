@@ -4,6 +4,7 @@ import { use, useEffect, useMemo, useState } from "react";
 import { CalendarClock, Check, CheckCircle2, Copy, ImagePlus, LockKeyhole, MessageCircle, PackageSearch, Plus, Save, Trash2, Upload, X, ZoomIn } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Locale } from "@/lib/types";
+import { copyToClipboard, uuid } from "@/lib/secure";
 
 const copy = { secure: "cooolmake secure sourcing quote", title: "Procurement quotation", subtitle: "Enter your password to view the quote and add anything you would like us to source.", password: "Password", open: "Open quotation", invalid: "Invalid quotation or password", addHint: "Add product photos, quantities, and notes. Your quotation will appear beside each item.", quoteNo: "Quotation number", copied: "Quotation number copied", product: "Product", qty: "Quantity", unitPrice: "Unit price", lineTotal: "Total", note: "Your note", itemTotal: "Item total", waiting: "Waiting for quote", confirm: "Confirm this item", confirmed: "Confirmed", save: "Save this product", saveAll: "Save all products", saveHint: "Save before leaving this page so our team can see your latest product details.", remove: "Remove", first: "First-leg shipping", last: "Last-leg shipping", goods: "Products subtotal", total: "Quotation total", currency: "Currency", rates: "This quotation uses a locked daily exchange rate", addMore: "Add another product", saved: "All product details have been saved", uploaded: "Image uploaded", arrivalTitle: "Expected arrival", arrivalHint: "Choose the date and time in your local time zone. We will automatically convert it to China Standard Time for our team.", arrivalField: "Your local date and time", arrivalSave: "Save expected arrival", arrivalSaved: "Expected arrival saved", confirmAsk: "Accept this item and quotation? Once confirmed, you cannot edit or remove it yourself.", deleteAsk: "Remove this item from the quotation?", contact: "Ask on WhatsApp", source: "Rates by ExchangeRate-API" };
 const quantityValue = (value: any) => /^[1-9]\d*$/.test(String(value ?? "").trim()) ? Number(value) : 0;
@@ -79,7 +80,7 @@ export default function ProcurementQuotePage({ params }: { params: Promise<{ loc
     finally { setBusy(""); }
   }
   const changeCurrency = (code: string) => { setCurrency(code); localStorage.setItem(currencyKey, code); };
-  const copyQuoteCode = async () => { await navigator.clipboard.writeText(quote.quote_code); setError(""); setNotice(m.copied); };
+  const copyQuoteCode = async () => { await copyToClipboard(quote.quote_code); setError(""); setNotice(m.copied); };
   const money = (valueCny: any) => {
     const value = Number(valueCny || 0) * Number(rates[currency] || 1);
     try { return new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: ["JPY", "KRW", "VND"].includes(currency) ? 0 : 2 }).format(value); }
@@ -90,7 +91,7 @@ export default function ProcurementQuotePage({ params }: { params: Promise<{ loc
     updateLocalItem(itemId, { quantity: value });
     setError(value && !/^\d+$/.test(value) ? "Quantity must contain whole numbers only." : "");
   };
-  const newLocalItem = () => setQuote((current: any) => ({ ...current, items: [...(current.items || []), { id: `new-${crypto.randomUUID()}`, name: "", image: "", quantity: 1, customer_note: "", unit_price_cny: 0, decision: "pending", added_by: "customer", _new: true }] }));
+  const newLocalItem = () => setQuote((current: any) => ({ ...current, items: [...(current.items || []), { id: `new-${uuid()}`, name: "", image: "", quantity: 1, customer_note: "", unit_price_cny: 0, decision: "pending", added_by: "customer", _new: true }] }));
 
   async function saveItem(item: any) {
     const quantity = quantityValue(item.quantity);

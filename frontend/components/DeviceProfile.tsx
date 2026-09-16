@@ -19,7 +19,7 @@ function detectDevice() {
   if (shortSide <= 374) device = "phone-small";
   else if (shortSide <= 430) device = "phone";
   else if (shortSide <= 540) device = "phone-large";
-  else if (shortSide <= 900 && touch) device = "tablet";
+  else if (touch && width <= 1024) device = "tablet";
 
   let model: string = device;
   if (isIOS && device === "phone-small") model = "iphone-compact";

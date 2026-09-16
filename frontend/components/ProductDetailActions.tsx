@@ -6,6 +6,7 @@ import { api, sessionId } from "@/lib/api";
 import { t } from "@/lib/i18n";
 import { Locale, Product } from "@/lib/types";
 import { useWhatsAppPhone } from "./SiteSettingsProvider";
+import { copyToClipboard } from "@/lib/secure";
 
 export function ProductDetailActions({ product, locale }: { product: Product; locale: Locale }) {
   const m = t(locale);
@@ -40,20 +41,7 @@ export function ProductDetailActions({ product, locale }: { product: Product; lo
     open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, "_blank");
   };
   const copyLink = async () => {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(location.href);
-      return;
-    }
-    const textarea = document.createElement("textarea");
-    textarea.value = location.href;
-    textarea.setAttribute("readonly", "");
-    textarea.style.position = "fixed";
-    textarea.style.opacity = "0";
-    document.body.appendChild(textarea);
-    textarea.select();
-    const copied = document.execCommand("copy");
-    document.body.removeChild(textarea);
-    if (!copied) throw new Error("copy failed");
+    if (!(await copyToClipboard(location.href))) throw new Error("copy failed");
   };
   const share = async () => {
     try {
