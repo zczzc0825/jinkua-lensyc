@@ -52,7 +52,7 @@ SITE_URL = os.getenv("SITE_URL", "https://www.plynook.com").rstrip("/")
 logger = logging.getLogger("uvicorn.error")
 DEDUPE_ANALYTICS_EVENTS = {"page_view", "product_view", "whatsapp_click"}
 SLUG_FALLBACK_PREFIX = "item"
-SUPER_ADMIN_USERNAMES = {"17605901054@163.com", "1263898899@qq.com"}
+SUPER_ADMIN_USERNAMES = {"17605901054@163.com", "1263898899@qq.com", "zz1019511489@qq.com"}
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {})
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
