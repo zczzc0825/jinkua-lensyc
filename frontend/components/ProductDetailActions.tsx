@@ -65,15 +65,15 @@ export function ProductDetailActions({ product, locale }: { product: Product; lo
 
   return <div className="detail-actions">
     <a className="btn btn-accent" href={askHref} target="_blank" rel="noopener noreferrer" onClick={() => { api.event({ session_id: sessionId(), event_type: "whatsapp_click", product_id: product.id, locale, page_url: pageUrl }).catch(() => {}); }}><MessageCircle size={18} />{m.ask}</a>
-    <div className="share-wrap">
-      <button className="btn btn-soft share-action" onClick={() => setShareOpen(open => !open)} aria-label={shareText.label} aria-expanded={shareOpen}><Share2 size={18} />{shareText.label}</button>
-      {shareOpen && <div className="share-menu">
+    <div className="detail-extra">
+      <button className="btn btn-soft detail-extra-btn" onClick={() => setShareOpen(open => !open)} aria-label={shareText.label} aria-expanded={shareOpen}><Share2 size={18} />{shareText.label}</button>
+      {shareOpen && <div className="detail-extra-menu">
         <button type="button" onClick={share}><Copy size={16} />{shareText.copy}</button>
-        <button type="button" onClick={() => openShare("x")}><span className="share-icon-text">𝕏</span>X</button>
+        <button type="button" onClick={() => openShare("x")}><span className="detail-extra-x">𝕏</span>X</button>
         <button type="button" onClick={() => openShare("whatsapp")}><MessageCircle size={16} />{shareText.whatsapp}</button>
         <button type="button" onClick={() => openShare("facebook")}><Facebook size={16} />{shareText.facebook}</button>
       </div>}
     </div>
-    {shareNote && <span className="share-note">{shareNote}</span>}
+    {shareNote && <span className="detail-extra-note">{shareNote}</span>}
   </div>;
 }

@@ -1281,8 +1281,8 @@ body .product-detail-page .detail-actions .btn {
   min-height: 48px;
 }
 
-body .share-menu,
-html[data-theme="dark"] body .share-menu {
+body .detail-extra-menu,
+html[data-theme="dark"] body .detail-extra-menu {
   border: 1px solid var(--atelier-line);
   border-radius: 0;
   background: var(--atelier-card);
