@@ -2402,3 +2402,38 @@ html[data-device^="phone"] .brand-logo.brand-slot img {
   max-height: none !important;
   object-fit: contain;
 }
+
+/* Nav action pills: theme-consistent wishlist button + uniform phone sizing
+   + restore the manual theme toggle on small screens. */
+html[data-theme="dark"] body .wishlist-link {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  color: var(--atelier-ink);
+}
+
+html[data-theme="dark"] body .wishlist-link:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--atelier-accent);
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  body .theme-toggle {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    padding-inline: 0;
+  }
+
+  html[data-device^="phone"] .nav-actions .pill {
+    height: 40px;
+    min-height: 40px;
+    padding: 0 12px;
+    font-size: 14px;
+  }
+
+  html[data-device^="phone"] .nav-actions .wishlist-link {
+    min-width: 52px;
+  }
+}
