@@ -8,6 +8,7 @@ import { api } from "@/lib/api";
 import { locales, t } from "@/lib/i18n";
 import { formatWeight } from "@/lib/price";
 import { Locale } from "@/lib/types";
+import { headers } from "next/headers";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: Locale; slug: string }> }) {
   const { locale, slug } = await params;
@@ -17,10 +18,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: L
 
 export default async function Detail({ params }: { params: Promise<{ locale: Locale; slug: string }> }) {
   const { locale, slug } = await params;
-  const product = await api.product(slug, locale);
+  const [product, settings, requestHeaders] = await Promise.all([api.product(slug, locale), api.settings(), headers()]);
+  const phone = String(settings.whatsapp_phone_number || "85200000000");
+  const host = (requestHeaders.get("x-forwarded-host") || requestHeaders.get("host") || "").trim();
+  const proto = requestHeaders.get("x-forwarded-proto") || (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https");
+  const productUrl = host ? `${proto}://${host}/${locale}/product/${slug}` : "";
+  const askHref = `https://wa.me/${phone}?text=${encodeURIComponent(`Hi, I'm interested in this product:\n\nProduct ID: ${product.product_code}\nProduct: ${product.title}\nSKU: ${product.sku}\nLink: ${productUrl}\n\nCould you please send me the price and shipping details?`)}`;
   const m = t(locale);
   const availabilityLabel = { zh: "Availability", en: "Availability", ja: "Availability", ko: "Availability" }[locale];
-  const availabilityValue = product.stock_status === "sold_out" ? "Sold Out" : "Ask us on WhatsApp";
+  const soldOut = product.stock_status === "sold_out";
   const listingTitle = { zh: "详细信息", en: "Product details", ja: "詳細情報", ko: "상세 정보" }[locale];
   const detailImagesTitle = { zh: "商品详情图", en: "Product detail images", ja: "商品詳細画像", ko: "상품 상세 이미지" }[locale];
   const labels = {
@@ -56,7 +62,9 @@ export default async function Detail({ params }: { params: Promise<{ locale: Loc
           <CopyProductId code={product.product_code} locale={locale} />
         </div>
         <ProductPriceCard product={publicProduct} locale={locale} />
-        <div className="quantity-card availability-card"><span>{availabilityLabel}</span><strong>{availabilityValue}</strong></div>
+        {soldOut
+          ? <div className="quantity-card availability-card"><span>{availabilityLabel}</span><strong>Sold Out</strong></div>
+          : <div className="quantity-card availability-card"><span>{availabilityLabel}</span><a className="availability-whatsapp-link" href={askHref} target="_blank" rel="noopener noreferrer"><strong>Ask us on WhatsApp</strong></a></div>}
         <div className="product-story-card">
           <span className="eyebrow">Why you'll love it</span>
           <p className="lead">{product.description}</p>
