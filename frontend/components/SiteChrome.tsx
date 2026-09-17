@@ -71,7 +71,7 @@ export function Header({ locale }: { locale: Locale }) {
         </button>
         <Link className="pill wishlist-link" href={`/${locale}/wishlist`} aria-label={m.inquiry}>
           <Heart size={16} />
-          <span>{count > 0 ? String(count).padStart(2, "0") : "00"}</span>
+          <span className="wishlist-count">{count > 0 ? String(count).padStart(2, "0") : "00"}</span>
         </Link>
         <button className="pill btn-soft menu-button" aria-label="Menu" aria-expanded={open} onClick={() => setOpen(!open)}>
           {open ? <X size={18} /> : <Menu size={18} />}

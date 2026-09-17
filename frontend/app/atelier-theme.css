@@ -2403,29 +2403,10 @@ html[data-device^="phone"] .brand-logo.brand-slot img {
   object-fit: contain;
 }
 
-/* Nav action pills: theme-consistent wishlist button + uniform phone sizing
-   + restore the manual theme toggle on small screens. */
-html[data-theme="dark"] body .wishlist-link {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.26);
-  color: var(--atelier-ink);
-}
-
-html[data-theme="dark"] body .wishlist-link:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: var(--atelier-accent);
-  color: #fff;
-}
-
+/* Nav action pills: uniform phone sizing; wishlist pill keeps the
+   ink/paper inversion (white in dark theme, black in light theme).
+   On phones the wishlist shows the heart icon only (count hidden). */
 @media (max-width: 640px) {
-  body .theme-toggle {
-    display: inline-flex !important;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    padding-inline: 0;
-  }
-
   html[data-device^="phone"] .nav-actions .pill {
     height: 40px;
     min-height: 40px;
@@ -2433,7 +2414,19 @@ html[data-theme="dark"] body .wishlist-link:hover {
     font-size: 14px;
   }
 
-  html[data-device^="phone"] .nav-actions .wishlist-link {
-    min-width: 52px;
+  html[data-device^="phone"] .nav-actions .wishlist-link,
+  html[data-device^="phone"] body .wishlist-link {
+    width: 40px;
+    min-width: 40px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  html[data-device^="phone"] .wishlist-link svg {
+    flex: 0 0 auto;
+  }
+
+  .wishlist-link .wishlist-count {
+    display: none;
   }
 }
