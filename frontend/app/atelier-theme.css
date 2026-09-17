@@ -2384,3 +2384,21 @@ html[data-theme="dark"] body .footer a.footer-email {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* Brand logo: height-driven sizing on phones so the wordmark is never clipped.
+   The legacy --phone-logo fixed widths were tuned for the old text logo and cut
+   the 3:1 image logo inside the 84px slot (overflow hidden). */
+html[data-device^="phone"] .brand-logo.brand-slot {
+  width: auto !important;
+  max-width: none !important;
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+}
+
+html[data-device^="phone"] .brand-logo.brand-slot img {
+  width: auto !important;
+  max-width: none !important;
+  height: 30px !important;
+  max-height: none !important;
+  object-fit: contain;
+}
