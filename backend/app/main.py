@@ -2333,13 +2333,16 @@ def seed():
             if not user.created_at: user.created_at = now
             if not user.updated_at: user.updated_at = now
             user.role = "super_admin" if user.username in SUPER_ADMIN_USERNAMES else (user.role or "admin")
-        settings = {"site_name": "cooolmake", "whatsapp_phone_number": "85200000000", "contact_email": "plynook001@gmail.com", "instagram_url": "https://instagram.com", "tiktok_url": "https://tiktok.com", "x_url": "https://x.com", "pinterest_url": "https://pinterest.com", "show_prices": True, "default_locale": "en"}
+        settings = {"site_name": "cooolmake", "whatsapp_phone_number": "85200000000", "contact_email": "cooolmake001@gmail.com", "instagram_url": "https://instagram.com", "tiktok_url": "https://tiktok.com", "x_url": "https://x.com", "pinterest_url": "https://pinterest.com", "show_prices": True, "default_locale": "en"}
         for key, value in settings.items():
             if not db.query(SiteSetting).filter(SiteSetting.key == key).first():
                 db.add(SiteSetting(key=key, value=value))
         site_name_setting = db.query(SiteSetting).filter(SiteSetting.key == "site_name").first()
         if site_name_setting and str(site_name_setting.value).strip().lower() == "plynook":
             site_name_setting.value = "cooolmake"
+        contact_email_setting = db.query(SiteSetting).filter(SiteSetting.key == "contact_email").first()
+        if contact_email_setting and str(contact_email_setting.value).strip().lower() == "plynook001@gmail.com":
+            contact_email_setting.value = "cooolmake001@gmail.com"
         if os.getenv("ENABLE_DEMO_SEED", "").lower() in {"1", "true", "yes"} and not db.query(Category).first():
             cats = [Category(slug="art-toys", name_en="Art Toys", name_ja="アートトイ", name_ko="아트 토이", name_zh="潮玩摆件", description_en="Collectible characters with a playful point of view."), Category(slug="home-decor", name_en="Home Decor", name_ja="ホームデコ", name_ko="홈 데코", name_zh="家居装饰", description_en="Small objects that make a room feel yours."), Category(slug="desk-accessories", name_en="Desk Accessories", name_ja="デスク用品", name_ko="데스크 용품", name_zh="桌面用品", description_en="Tiny upgrades for better desk days."), Category(slug="gifts", name_en="Gifts", name_ja="ギフト", name_ko="선물", name_zh="礼品", description_en="Unexpected gifts for delightful people.")]
             db.add_all(cats); db.flush()

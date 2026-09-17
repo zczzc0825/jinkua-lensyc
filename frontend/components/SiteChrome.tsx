@@ -90,7 +90,7 @@ export function Footer({ locale }: { locale: Locale }) {
     api.settings().then(setSettings).catch(() => {});
   }, []);
 
-  const email = String(settings.contact_email || "plynook001@gmail.com");
+  const email = String(settings.contact_email || "cooolmake001@gmail.com");
   const socialLinks = [
     ["Instagram", externalUrl(settings.instagram_url)],
     ["TikTok", externalUrl(settings.tiktok_url)],

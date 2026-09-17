@@ -52,7 +52,7 @@ export default async function Contact({ params }: { params: Promise<{ locale: Lo
   const copy = contactCopy[locale] || contactCopy.en;
   const settings = await api.settings();
   const phone = String(settings.whatsapp_phone_number || "85200000000");
-  const email = String(settings.contact_email || "plynook001@gmail.com");
+  const email = String(settings.contact_email || "cooolmake001@gmail.com");
 
   return (
     <main className="container content-page contact-page-enhanced">
