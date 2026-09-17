@@ -35,11 +35,9 @@ export function ProductDetailActions({ product, locale }: { product: Product; lo
     }).catch(() => sessionStorage.removeItem(key));
   }, [product.id, product.category_id, locale]);
 
-  const ask = async () => {
-    await api.event({ session_id: sessionId(), event_type: "whatsapp_click", product_id: product.id, locale, page_url: location.href }).catch(() => {});
-    const text = `Hi, I'm interested in this product:\n\nProduct ID: ${product.product_code}\nProduct: ${product.title}\nSKU: ${product.sku}\nLink: ${location.href}\n\nCould you please send me the price and shipping details?`;
-    open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, "_blank");
-  };
+  const [pageUrl, setPageUrl] = useState("");
+  useEffect(() => { setPageUrl(location.href); }, []);
+  const askHref = `https://wa.me/${phone}?text=${encodeURIComponent(`Hi, I'm interested in this product:\n\nProduct ID: ${product.product_code}\nProduct: ${product.title}\nSKU: ${product.sku}\nLink: ${pageUrl}\n\nCould you please send me the price and shipping details?`)}`;
   const copyLink = async () => {
     if (!(await copyToClipboard(location.href))) throw new Error("copy failed");
   };
@@ -66,7 +64,7 @@ export function ProductDetailActions({ product, locale }: { product: Product; lo
   };
 
   return <div className="detail-actions">
-    <button className="btn btn-accent" onClick={ask}><MessageCircle size={18} />{m.ask}</button>
+    <a className="btn btn-accent" href={askHref} target="_blank" rel="noopener noreferrer" onClick={() => { api.event({ session_id: sessionId(), event_type: "whatsapp_click", product_id: product.id, locale, page_url: pageUrl }).catch(() => {}); }}><MessageCircle size={18} />{m.ask}</a>
     <div className="share-wrap">
       <button className="btn btn-soft share-action" onClick={() => setShareOpen(open => !open)} aria-label={shareText.label} aria-expanded={shareOpen}><Share2 size={18} />{shareText.label}</button>
       {shareOpen && <div className="share-menu">
