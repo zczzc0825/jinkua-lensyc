@@ -1596,7 +1596,7 @@ def create_product(data: ProductInput, idempotency_key: Optional[str] = Header(N
     item.updated_by_id = user.id
     if item.status == "published": item.published_at = datetime.utcnow()
     db.add(item); db.flush()
-    item.product_code = f"PLY-{item.id:06d}"
+    item.product_code = f"CLM-{item.id:06d}"
     if not data.sku: item.sku = item.product_code
     if not data.slug: item.slug = item.product_code.lower()
     try:
@@ -2430,7 +2430,7 @@ def seed():
         for product in db.query(Product).filter(Product.status == "published", Product.published_at.is_(None)).all():
             product.published_at = product.created_at or datetime.utcnow()
         for product in db.query(Product).all():
-            if not product.product_code: product.product_code = f"PLY-{product.id:06d}"
+            if not product.product_code: product.product_code = f"CLM-{product.id:06d}"
             if not product.source_platform: product.source_platform = "1688"
         price_setting = db.query(SiteSetting).filter(SiteSetting.key == "show_prices").first()
         if price_setting: price_setting.value = True
