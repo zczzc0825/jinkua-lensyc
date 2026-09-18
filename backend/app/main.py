@@ -303,6 +303,20 @@ class Input(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
 
+class AdminActionLog(Base):
+    __tablename__ = "admin_action_logs"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[Optional[int]] = mapped_column(Integer, index=True)
+    username: Mapped[Optional[str]] = mapped_column(String(200))
+    nickname: Mapped[Optional[str]] = mapped_column(String(100))
+    action: Mapped[str] = mapped_column(String(200), index=True)
+    detail: Mapped[Optional[str]] = mapped_column(Text)
+    status: Mapped[int] = mapped_column(Integer, default=200)
+    ok: Mapped[bool] = mapped_column(Boolean, default=True)
+    ip: Mapped[Optional[str]] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
+
+
 class LoginInput(Input):
     username: str
     password: str
@@ -1199,16 +1213,62 @@ app.add_middleware(CORSMiddleware, allow_origins=os.getenv("CORS_ORIGINS", "http
 app.mount("/storage", StaticFiles(directory=STORAGE_DIR), name="storage")
 
 
+def _action_identity(db: Session, authorization: Optional[str]) -> Optional[User]:
+    try:
+        if not authorization or not authorization.startswith("Bearer "):
+            return None
+        payload = jwt.decode(authorization[7:], SECRET_KEY, algorithms=[ALGORITHM])
+        user = db.get(User, int(payload["sub"]))
+        return user if user and user.is_active else None
+    except Exception:
+        return None
+
+
+@app.middleware("http")
+async def admin_action_logger(request: Request, call_next):
+    response = await call_next(request)
+    try:
+        path = request.url.path
+        if request.method in {"POST", "PUT", "DELETE"} and path.startswith("/api/admin/") and path != "/api/admin/auth/login":
+            db = SessionLocal()
+            try:
+                user = _action_identity(db, request.headers.get("authorization"))
+                if user:
+                    size = request.headers.get("content-length")
+                    detail = f"文件大小约 {int(size) // 1024 // 1024}MB" if size and size.isdigit() and int(size) > 1024 * 1024 and "upload" in path else None
+                    db.add(AdminActionLog(
+                        user_id=user.id,
+                        username=user.username,
+                        nickname=user.nickname or user.username,
+                        action=f"{request.method} {path}",
+                        detail=detail,
+                        status=response.status_code,
+                        ok=response.status_code < 400,
+                        ip=request.client.host if request.client else None,
+                    ))
+                    db.commit()
+            finally:
+                db.close()
+    except Exception:
+        logging.getLogger("uvicorn.error").exception("admin action log failed")
+    return response
+
+
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
 
 
 @app.post("/api/admin/auth/login")
-def login(data: LoginInput, db: Session = Depends(get_db)):
+def login(data: LoginInput, request: Request, db: Session = Depends(get_db)):
+    ip = request.client.host if request.client else None
     user = db.query(User).filter(User.username == data.username).first()
     if not user or not pwd_context.verify(data.password, user.password_hash):
+        db.add(AdminActionLog(user_id=user.id if user else None, username=(data.username or "")[:200], nickname=(user.nickname or user.username) if user else None, action="login", detail="账号或密码错误", status=401, ok=False, ip=ip))
+        db.commit()
         raise HTTPException(401, "Incorrect username or password")
+    db.add(AdminActionLog(user_id=user.id, username=user.username, nickname=user.nickname or user.username, action="login", status=200, ok=True, ip=ip))
+    db.commit()
     return {"access_token": token_for(user), "token_type": "bearer"}
 
 
@@ -1846,10 +1906,12 @@ def admin_procurement_quote(quote_id: int, db: Session = Depends(get_db), _: Use
 
 
 @app.get("/api/admin/procurement-quotes/{quote_id}/export")
-def export_admin_procurement_quote(quote_id: int, db: Session = Depends(get_db), _: User = Depends(current_user)):
+def export_admin_procurement_quote(quote_id: int, db: Session = Depends(get_db), user: User = Depends(current_user)):
     quote = db.get(ProcurementQuote, quote_id)
     if not quote:
         raise HTTPException(404, "Procurement quote not found")
+    db.add(AdminActionLog(user_id=user.id, username=user.username, nickname=user.nickname or user.username, action=f"导出采购报价单 {quote.quote_code}", status=200, ok=True))
+    db.commit()
     filename = f"{quote.quote_code}.xlsx"
     return StreamingResponse(
         procurement_excel(quote, db),
@@ -2231,6 +2293,12 @@ def analytics_breakdown(days: int = Query(30, ge=1, le=365), db: Session = Depen
 def inquiries(db: Session = Depends(get_db), _: User = Depends(current_user)):
     rows = db.query(AnalyticsEvent).filter(AnalyticsEvent.event_type.in_(["whatsapp_click", "inquiry_submit"])).order_by(AnalyticsEvent.created_at.desc()).limit(200).all()
     return [{"id": x.id, "event_type": x.event_type, "product_id": x.product_id, "items": x.inquiry_items, "locale": x.locale, "page_url": x.page_url, "created_at": x.created_at.isoformat()} for x in rows]
+
+
+@app.get("/api/admin/records")
+def admin_records(limit: int = Query(300, le=2000), db: Session = Depends(get_db), _: User = Depends(current_user)):
+    rows = db.query(AdminActionLog).order_by(AdminActionLog.id.desc()).limit(limit).all()
+    return [{"id": x.id, "user_id": x.user_id, "username": x.username, "nickname": x.nickname, "action": x.action, "detail": x.detail, "status": x.status, "ok": x.ok, "ip": x.ip, "created_at": (x.created_at.isoformat() + "Z") if x.created_at else None} for x in rows]
 
 
 def seed():

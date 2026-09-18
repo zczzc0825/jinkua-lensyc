@@ -165,6 +165,10 @@ export default function Products() {
   async function handleUpload(file: File | undefined, type: "image" | "video", apply: (url: string) => void, uploadKey = "image") {
     if (!file) return;
     setError("");
+    if (type === "video" && file.size > 200 * 1024 * 1024) {
+      setVideoUpload({ active: true, percent: 0, fileName: file.name, message: "视频超过 200MB，无法上传", error: "单个视频上限 200MB，请压缩后再试" });
+      return;
+    }
     let uploadFilePayload = file;
     if (type === "video") {
       setVideoUpload({ active: true, percent: 0, fileName: file.name, message: "准备上传视频…" });
