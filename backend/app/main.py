@@ -1573,6 +1573,8 @@ def apply_product(item: Product, data: ProductInput, db: Session):
         values["title_en"] = data.title_zh
     if values.get("color_variants"):
         values["stock_quantity"] = sum(max(0, int(variant.get("stock_quantity", 0) or 0)) for variant in values["color_variants"])
+    if not values.get("main_image") and values.get("gallery_images"):
+        values["main_image"] = values["gallery_images"][0]
     for key, value in values.items():
         if key in ("sku", "slug") and not value:
             continue
