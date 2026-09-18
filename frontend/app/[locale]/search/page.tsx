@@ -1,0 +1,2 @@
+import {ProductBrowser} from "@/components/ProductBrowser";import {Locale} from "@/lib/types";import {t} from "@/lib/i18n";
+export default async function Search({params,searchParams}:{params:Promise<{locale:Locale}>;searchParams:Promise<{q?:string}>}){const{locale}=await params;const{q=""}=await searchParams;return <main className="container"><header className="page-hero"><h1 className="page-title">{t(locale).searchResults}</h1><p>“{q}”</p></header><ProductBrowser locale={locale} initialKeyword={q}/></main>}

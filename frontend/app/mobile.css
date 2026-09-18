@@ -1,0 +1,2 @@
+.menu-button{display:none}.mobile-menu{display:none}
+@media(max-width:900px){.menu-button{display:inline-flex}.mobile-menu{display:flex;position:absolute;top:68px;left:0;right:0;background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px;box-shadow:0 18px 50px rgba(30,20,10,.12);flex-direction:column;z-index:30}.mobile-menu a{padding:12px 14px;border-radius:10px}.mobile-menu a:hover{background:var(--paper)}}

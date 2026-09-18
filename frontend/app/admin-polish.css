@@ -1,0 +1,526 @@
+/* Compact admin polish. */
+
+.admin-shell {
+  --admin-ink: #202228;
+  --admin-muted: #747984;
+  --admin-line: #e2e5e9;
+  --admin-paper: #f4f5f7;
+  --admin-card: #fff;
+  --admin-accent: #4067f3;
+  min-height: 100vh;
+  grid-template-columns: 258px minmax(0, 1fr);
+  background: var(--admin-paper);
+  color: var(--admin-ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+}
+
+.admin-shell .admin-side {
+  height: 100vh;
+  padding: 22px 15px 16px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, .08);
+  background: #1c1e24;
+  color: #fff;
+  box-shadow: none;
+}
+
+.admin-wordmark {
+  width: 152px;
+  height: 44px;
+  margin: 0 9px 14px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.admin-wordmark img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.admin-side-intro {
+  margin: 0 9px 18px;
+  padding: 3px 2px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, .12);
+}
+
+.admin-side-intro span,
+.admin-header > div > span {
+  display: block;
+  margin-bottom: 7px;
+  color: #8e95a4;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.admin-side-intro strong {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.admin-shell .admin-user-chip {
+  margin: 0 4px 18px;
+  padding: 13px 14px;
+  gap: 4px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .045);
+  box-shadow: none;
+}
+
+.admin-shell .admin-user-chip > span {
+  color: #858c9b;
+  font-size: 10px;
+  letter-spacing: .08em;
+}
+
+.admin-shell .admin-user-chip strong {
+  color: #f7f7f8;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.admin-shell .admin-user-chip small {
+  color: #9da3af;
+  font-size: 11px;
+}
+
+.admin-shell .admin-side nav {
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-nav-links {
+  min-height: 0;
+  display: grid;
+  gap: 3px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.admin-shell .admin-side nav a {
+  min-height: 40px;
+  margin: 0;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border-radius: 8px;
+  color: #aeb3bf;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background .18s ease, color .18s ease;
+}
+
+.admin-shell .admin-side nav a:hover {
+  background: rgba(255, 255, 255, .065);
+  color: #fff;
+}
+
+.admin-shell .admin-side nav a.active {
+  background: #f4f5f7;
+  color: #24262c;
+}
+
+.admin-nav-icon {
+  flex: 0 0 auto;
+  opacity: .88;
+}
+
+.admin-logout {
+  min-height: 42px;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 8px;
+  background: transparent;
+  color: #b7bbc5;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+}
+
+.admin-logout:hover {
+  border-color: rgba(255, 255, 255, .2);
+  background: rgba(255, 255, 255, .06);
+  color: #fff;
+}
+
+.admin-shell .admin-main {
+  min-width: 0;
+  padding: 30px clamp(24px, 3.4vw, 52px) 60px;
+  background: var(--admin-paper);
+}
+
+.admin-shell .admin-header {
+  min-height: 74px;
+  margin: 0 0 26px;
+  padding: 0 0 20px;
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  border-bottom: 1px solid var(--admin-line);
+}
+
+.admin-shell .admin-header h1 {
+  margin: 0;
+  color: var(--admin-ink);
+  font-size: clamp(27px, 2.4vw, 36px);
+  font-weight: 720;
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+
+.admin-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.admin-shell .panel,
+html[data-theme="dark"] .admin-shell .panel {
+  margin-top: 16px;
+  padding: 21px;
+  border: 1px solid var(--admin-line);
+  border-radius: 12px;
+  background: var(--admin-card);
+  color: var(--admin-ink);
+  box-shadow: 0 2px 5px rgba(26, 29, 36, .025);
+}
+
+.admin-shell .panel h2,
+.admin-shell .panel h3 {
+  color: var(--admin-ink);
+  letter-spacing: -.025em;
+}
+
+.admin-shell .stats {
+  gap: 12px;
+}
+
+.admin-shell .stat,
+html[data-theme="dark"] .admin-shell .stat {
+  padding: 19px;
+  border: 1px solid var(--admin-line);
+  border-radius: 11px;
+  background: var(--admin-card);
+  box-shadow: none;
+}
+
+.admin-shell .stat span {
+  color: var(--admin-muted);
+  font-size: 12px;
+}
+
+.admin-shell .stat strong {
+  margin-top: 9px;
+  color: var(--admin-ink);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -.04em;
+}
+
+.admin-shell .btn,
+.admin-shell .pill {
+  min-height: 40px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: none;
+}
+
+.admin-shell .btn-primary,
+.admin-shell .btn-accent {
+  border-color: var(--admin-accent);
+  background: var(--admin-accent);
+  color: #fff;
+}
+
+.admin-shell .btn-primary:hover,
+.admin-shell .btn-accent:hover {
+  border-color: #3157df;
+  background: #3157df;
+}
+
+.admin-shell .btn-soft,
+html[data-theme="dark"] .admin-shell .btn-soft {
+  border: 1px solid var(--admin-line);
+  background: #fff;
+  color: var(--admin-ink);
+}
+
+.admin-shell .field,
+.admin-shell input,
+.admin-shell select,
+.admin-shell textarea,
+html[data-theme="dark"] .admin-shell .field,
+html[data-theme="dark"] .admin-shell input,
+html[data-theme="dark"] .admin-shell select,
+html[data-theme="dark"] .admin-shell textarea {
+  border-color: #d9dde3;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--admin-ink);
+  box-shadow: none;
+}
+
+.admin-shell .field:focus,
+.admin-shell input:focus,
+.admin-shell select:focus,
+.admin-shell textarea:focus {
+  border-color: #7b94ee;
+  outline: 3px solid rgba(64, 103, 243, .11);
+}
+
+.admin-shell .table {
+  color: var(--admin-ink);
+}
+
+.admin-shell .table th {
+  position: sticky;
+  top: -21px;
+  z-index: 2;
+  padding-block: 12px;
+  background: #fafbfc;
+  color: #777d89;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
+
+.admin-shell .table td {
+  border-bottom-color: #eceef1;
+}
+
+.admin-shell .table tbody tr:hover td {
+  background: #fafbff;
+}
+
+.admin-shell .status {
+  border-radius: 6px;
+}
+
+.admin-shell .admin-modal,
+html[data-theme="dark"] .admin-shell .admin-modal {
+  border: 1px solid var(--admin-line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--admin-ink);
+  box-shadow: 0 24px 80px rgba(18, 22, 31, .2);
+}
+
+/* Login screen. */
+.login-page,
+html[data-theme="dark"] body .login-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, .025) 1px, transparent 1px) 0 0 / 52px 52px,
+    #1b1d22;
+  color: #fff;
+}
+
+.login-page::before {
+  content: "";
+  position: absolute;
+  width: 460px;
+  height: 460px;
+  right: -180px;
+  top: -210px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 50%;
+}
+
+.login-page::after {
+  content: "";
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  left: -130px;
+  bottom: -160px;
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 50%;
+}
+
+.login-page .login-card,
+html[data-theme="dark"] body .login-page .login-card {
+  position: relative;
+  z-index: 1;
+  width: min(440px, calc(100% - 32px));
+  padding: 38px;
+  border: 1px solid #e3e5e9;
+  border-radius: 14px;
+  background: #fff;
+  color: #202228;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, .22);
+}
+
+.login-card-head {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e8e9ec;
+}
+
+.login-wordmark {
+  width: 178px;
+  height: auto;
+  margin: -12px 0 10px;
+  display: block;
+}
+
+.login-card-head > span {
+  display: block;
+  margin-bottom: 19px;
+  color: #7b818d;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.login-page .login-card h1 {
+  margin: 0 0 9px;
+  color: #202228;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+  font-size: 34px;
+  font-weight: 730;
+  letter-spacing: -.045em;
+}
+
+.login-card-head p {
+  margin: 0;
+  color: #747984;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.login-page .login-card .field,
+.login-page .login-card .btn {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 11px;
+  border-radius: 8px;
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.login-page .login-card .field {
+  border: 1px solid #d9dde3;
+  background: #fff;
+  color: #202228;
+}
+
+.login-page .login-card .field:focus {
+  border-color: #7b94ee;
+  outline: 3px solid rgba(64, 103, 243, .11);
+}
+
+.login-page .login-card .btn-accent {
+  border: 1px solid #4067f3;
+  background: #4067f3;
+  color: #fff;
+}
+
+.login-page .error {
+  margin-top: 11px;
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: #fff0ef;
+  color: #b42318;
+}
+
+@media (max-width: 900px) {
+  .admin-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-shell .admin-side {
+    position: relative;
+    top: auto;
+    height: auto;
+    padding: 13px;
+    display: block;
+  }
+
+  .admin-side-intro {
+    margin: 0 4px 10px;
+    padding: 3px 6px 13px;
+  }
+
+  .admin-shell .admin-user-chip {
+    display: none;
+  }
+
+  .admin-shell .admin-side nav {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    overflow-x: auto;
+  }
+
+  .admin-nav-links {
+    display: flex;
+    flex: 1;
+    overflow-x: auto;
+  }
+
+  .admin-shell .admin-side nav a {
+    flex: 0 0 auto;
+  }
+
+  .admin-logout {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  .admin-shell .admin-main {
+    padding: 24px 18px 48px;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-side-intro strong {
+    font-size: 16px;
+  }
+
+  .admin-shell .admin-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-header-actions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .admin-header-actions .btn {
+    flex: 1;
+  }
+
+  .admin-shell .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .login-page .login-card {
+    padding: 28px 22px;
+  }
+}
