@@ -2241,11 +2241,36 @@ def analytics_breakdown(days: int = Query(30, ge=1, le=365), db: Session = Depen
         AnalyticsEvent.locale.isnot(None),
     ).group_by(AnalyticsEvent.locale).order_by(func.count(AnalyticsEvent.id).desc()).limit(10).all()
 
-    source_rows = db.query(AnalyticsEvent.utm_source, func.count(AnalyticsEvent.id)).filter(
+    # 来源渠道：优先 UTM 参数；无 UTM 时按 referrer 域名归类（google/bing=自然搜索，其余=外链），都没有则为直接访问
+    def channel_for(utm_source: Optional[str], referrer: Optional[str]) -> str:
+        if utm_source and utm_source.strip():
+            return utm_source.strip()
+        if referrer:
+            try:
+                domain = urlparse(referrer).hostname or ""
+            except Exception:
+                domain = ""
+            domain = domain.lower().removeprefix("www.")
+            if not domain:
+                return "直接访问"
+            if any(engine in domain for engine in ("google.", "bing.", "yahoo.", "duckduckgo.", "baidu.", "yandex.")):
+                return f"{domain.split('.')[0]} / 自然搜索"
+            return f"{domain} / 外链"
+        return "直接访问"
+
+    raw_source_rows = db.query(
+        AnalyticsEvent.utm_source,
+        AnalyticsEvent.referrer,
+        func.count(AnalyticsEvent.id),
+    ).filter(
         AnalyticsEvent.created_at >= start,
-        AnalyticsEvent.utm_source.isnot(None),
-        AnalyticsEvent.utm_source != "",
-    ).group_by(AnalyticsEvent.utm_source).order_by(func.count(AnalyticsEvent.id).desc()).limit(10).all()
+        AnalyticsEvent.event_type == "page_view",
+    ).group_by(AnalyticsEvent.utm_source, AnalyticsEvent.referrer).all()
+    source_counts: Dict[str, int] = {}
+    for utm_source, referrer, count in raw_source_rows:
+        channel = channel_for(utm_source, referrer)
+        source_counts[channel] = source_counts.get(channel, 0) + int(count or 0)
+    source_rows = sorted(source_counts.items(), key=lambda item: item[1], reverse=True)[:10]
 
     search_rows = db.query(AnalyticsEvent.search_keyword, func.count(AnalyticsEvent.id)).filter(
         AnalyticsEvent.created_at >= start,
