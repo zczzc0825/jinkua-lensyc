@@ -8,12 +8,14 @@ import { api } from "@/lib/api";
 import { locales, t } from "@/lib/i18n";
 import { formatWeight } from "@/lib/price";
 import { Locale } from "@/lib/types";
+import { breadcrumbList } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
 import { headers } from "next/headers";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: Locale; slug: string }> }) {
   const { locale, slug } = await params;
-  try { const product = await api.product(slug, locale); return { title: `${product.title} — cooolmake`, description: product.short_description, openGraph: { title: product.title, description: product.short_description, images: product.main_image ? [product.main_image] : [] }, alternates: { canonical: `/${locale}/product/${slug}`, languages: Object.fromEntries(locales.map(item => [item, `/${item}/product/${slug}`])) } }; }
-  catch { return { title: "Product — cooolmake" }; }
+  try { const product = await api.product(slug, locale); return { title: product.title, description: product.short_description, openGraph: { title: product.title, description: product.short_description, images: product.main_image ? [product.main_image] : [] }, alternates: { canonical: `/${locale}/product/${slug}`, languages: Object.fromEntries(locales.map(item => [item, `/${item}/product/${slug}`])) } }; }
+  catch { return { title: "Product" }; }
 }
 
 export default async function Detail({ params }: { params: Promise<{ locale: Locale; slug: string }> }) {
@@ -51,7 +53,41 @@ export default async function Detail({ params }: { params: Promise<{ locale: Loc
     [labels.publishedAt, formatDate(product.published_at)],
     [labels.createdAt, formatDate(product.created_at)],
   ].filter((item): item is [string, string] => Boolean(item[1]));
+  const baseUrl = host ? `${proto}://${host}` : "https://cooolmake.com";
+  const priceValue = product.price != null ? product.price : (product.color_variants || []).map(variant => variant.price).filter((value): value is number => value != null).sort((a, b) => a - b)[0] ?? null;
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    description: product.short_description || product.description || `${product.title} from the cooolmake edit`,
+    sku: product.sku || undefined,
+    mpn: product.product_code || undefined,
+    image: product.main_image ? [product.main_image] : (product.gallery_images || []),
+    category: product.category?.name,
+    brand: { "@type": "Brand", name: "cooolmake" },
+    url: productUrl || undefined,
+    ...(priceValue != null ? {
+      offers: {
+        "@type": "Offer",
+        url: productUrl || undefined,
+        priceCurrency: "USD",
+        price: priceValue,
+        availability: soldOut ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+        itemCondition: "https://schema.org/NewCondition",
+        seller: { "@type": "Organization", name: "cooolmake" },
+      },
+    } : {}),
+  };
+  const schema = [
+    productSchema,
+    breadcrumbList(baseUrl, [
+      { name: "Home", url: `/${locale}` },
+      ...(product.category?.slug ? [{ name: product.category.name, url: `/${locale}/categories/${product.category.slug}` }] : []),
+      { name: product.title, url: `/${locale}/product/${slug}` },
+    ]),
+  ];
   return <main className="container product-detail-page">
+    <JsonLd data={schema} />
     <div className="detail">
       <ProductMedia image={product.main_image} galleryImages={product.gallery_images || []} video={product.video_url} variants={product.color_variants || []} locale={locale} />
       <div className="detail-copy">

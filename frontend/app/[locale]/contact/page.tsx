@@ -2,6 +2,9 @@ import { Mail, MessageCircle } from "lucide-react";
 import { Locale } from "@/lib/types";
 import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
+import { seoCopy, absoluteUrl } from "@/lib/seo";
+import { JsonLd } from "@/components/JsonLd";
+import type { Metadata } from "next";
 
 const contactCopy = {
   en: {
@@ -46,6 +49,17 @@ const contactCopy = {
   },
 } satisfies Record<Locale, { eyebrow: string; intro: string; whatsapp: string; faqs: [string, string][] }>;
 
+export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const c = seoCopy[locale] || seoCopy.en;
+  return {
+    title: c.contactTitle,
+    description: c.contactDescription,
+    alternates: { canonical: absoluteUrl(`/${locale}/contact`) },
+    openGraph: { title: c.contactTitle, description: c.contactDescription, url: absoluteUrl(`/${locale}/contact`), type: "website" },
+  };
+}
+
 export default async function Contact({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params;
   const m = t(locale);
@@ -56,6 +70,21 @@ export default async function Contact({ params }: { params: Promise<{ locale: Lo
 
   return (
     <main className="container content-page contact-page-enhanced">
+      <JsonLd data={[{
+        "@context": "https://schema.org",
+        "@type": "ContactPage",
+        name: "Contact cooolmake",
+        description: seoCopy[locale]?.contactDescription || seoCopy.en.contactDescription,
+        url: absoluteUrl(`/${locale}/contact`),
+      }, {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: copy.faqs.map(([question, answer]) => ({
+          "@type": "Question",
+          name: question,
+          acceptedAnswer: { "@type": "Answer", text: answer },
+        })),
+      }]} />
       <header className="page-hero contact-hero-card">
         <span className="eyebrow">{copy.eyebrow}</span>
         <h1 className="page-title">{m.getInTouch}</h1>
