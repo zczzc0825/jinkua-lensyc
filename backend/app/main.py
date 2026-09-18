@@ -7,6 +7,8 @@ import hashlib
 import io
 import shutil
 import tempfile
+import threading
+import time
 import uuid
 import httpx
 import logging
@@ -39,6 +41,7 @@ except ImportError:  # pragma: no cover - optional dependency for local-only sto
 BASE_DIR = Path(__file__).resolve().parents[1]
 STORAGE_DIR = BASE_DIR / "storage"
 STORAGE_DIR.mkdir(exist_ok=True)
+MEDIA_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4", ".webm", ".mov"}
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'plynook.db'}")
 SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")
 ALGORITHM = "HS256"
@@ -2434,3 +2437,72 @@ def seed():
 
 
 seed()
+
+
+def _referenced_media_urls(db: Session) -> set[str]:
+    """Collect every /storage/ URL currently referenced by any entity."""
+    urls: set[str] = set()
+
+    def collect(value: Any):
+        if isinstance(value, str):
+            if value.startswith("/storage/"):
+                urls.add(value.split("?")[0])
+        elif isinstance(value, list):
+            for item in value:
+                collect(item)
+        elif isinstance(value, dict):
+            for item in value.values():
+                collect(item)
+
+    for product in db.query(Product).all():
+        collect([product.main_image, product.video_url, product.gallery_images, product.detail_images, product.color_variants])
+    for banner in db.query(Banner).all():
+        collect(banner.image)
+    for category in db.query(Category).all():
+        collect(category.banner_image)
+    for quote in db.query(ProcurementQuote).all():
+        collect(quote.items)
+    for setting in db.query(SiteSetting).all():
+        collect(setting.value)
+    return urls
+
+
+def cleanup_orphan_media(grace_hours: Optional[int] = None) -> list[str]:
+    """Delete uploaded media that no entity references and that is older than the grace window.
+
+    Covers uploads that were never attached to a saved product/quote/banner
+    (e.g. the admin uploaded then abandoned the edit) as well as media that a
+    later save removed from its entity."""
+    grace = int(os.getenv("ORPHAN_GRACE_HOURS", "24")) if grace_hours is None else grace_hours
+    db = SessionLocal()
+    try:
+        referenced = _referenced_media_urls(db)
+    finally:
+        db.close()
+    removed: list[str] = []
+    for file_path in STORAGE_DIR.iterdir():
+        if not file_path.is_file() or file_path.suffix.lower() not in MEDIA_EXTENSIONS:
+            continue
+        if f"/storage/{file_path.name}" in referenced:
+            continue
+        if time.time() - file_path.stat().st_mtime < grace * 3600:
+            continue
+        try:
+            file_path.unlink()
+            removed.append(f"/storage/{file_path.name}")
+        except OSError:
+            continue
+    if removed:
+        logging.getLogger("uvicorn.error").info("orphan media cleanup removed %d file(s): %s", len(removed), ", ".join(removed))
+    return removed
+
+
+def _orphan_cleanup_loop():
+    while True:
+        try:
+            cleanup_orphan_media()
+        except Exception:
+            logging.getLogger("uvicorn.error").exception("orphan media cleanup failed")
+        threading.Event().wait(6 * 3600)
+
+threading.Thread(target=_orphan_cleanup_loop, daemon=True, name="orphan-media-cleanup").start()
