@@ -174,8 +174,8 @@ export default function Products() {
     }
     try {
       const url = await uploadFile(uploadFilePayload, type, percent => {
-        if (type === "video") setVideoUpload({ active: true, percent, fileName: file.name, message: percent >= 99 ? "正在保存到七牛云，请稍候…" : "视频上传中…" });
-        else setImageUpload(uploadKey, { active: true, percent, fileName: uploadFilePayload.name, message: percent >= 99 ? "正在保存到七牛云，请稍候…" : "图片上传中…" });
+        if (type === "video") setVideoUpload({ active: true, percent, fileName: file.name, message: percent >= 99 ? "正在保存，请稍候…" : "视频上传中…" });
+        else setImageUpload(uploadKey, { active: true, percent, fileName: uploadFilePayload.name, message: percent >= 99 ? "正在保存，请稍候…" : "图片上传中…" });
       });
       apply(url);
       if (type === "video") setVideoUpload({ active: true, percent: 100, fileName: file.name, message: "视频上传完成" });
@@ -202,7 +202,7 @@ export default function Products() {
         const uploadKey = `${key}-batch-${file.name}-${index}`;
         setImageUpload(uploadKey, { active: true, percent: 0, fileName: file.name, message: `第 ${index + 1}/${selected.length} 张正在压缩…` });
         const uploadFilePayload = await compressImageForUpload(file);
-        const url = await uploadFile(uploadFilePayload, "image", percent => setImageUpload(uploadKey, { active: true, percent, fileName: uploadFilePayload.name, message: percent >= 99 ? "正在保存到七牛云，请稍候…" : `第 ${index + 1}/${selected.length} 张上传中…` }));
+        const url = await uploadFile(uploadFilePayload, "image", percent => setImageUpload(uploadKey, { active: true, percent, fileName: uploadFilePayload.name, message: percent >= 99 ? "正在保存，请稍候…" : `第 ${index + 1}/${selected.length} 张上传中…` }));
         urls.push(url);
         setImageUpload(uploadKey, { active: true, percent: 100, fileName: uploadFilePayload.name, message: `第 ${index + 1}/${selected.length} 张上传完成` });
         clearImageUploadLater(uploadKey);
