@@ -1,9 +1,22 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowDownRight, ArrowRight, MessageCircle, PackageCheck } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { api } from "@/lib/api";
 import { t } from "@/lib/i18n";
+import { defaultOgImage, languageAlternates, seoCopyFor } from "@/lib/seo";
 import { Locale } from "@/lib/types";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const copy = seoCopyFor("home", locale);
+  return {
+    title: { absolute: copy.title },
+    description: copy.description,
+    alternates: { canonical: `/${locale}`, languages: languageAlternates(item => `/${item}`) },
+    openGraph: { title: copy.title, description: copy.description, url: `/${locale}`, images: defaultOgImage },
+  };
+}
 
 export default async function Home({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params;

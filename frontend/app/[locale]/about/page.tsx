@@ -1,7 +1,20 @@
 import { ArrowDownRight, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Locale } from "@/lib/types";
 import { t } from "@/lib/i18n";
+import { defaultOgImage, languageAlternates } from "@/lib/seo";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const m = t(locale);
+  return {
+    title: m.about,
+    description: m.aboutBody,
+    alternates: { canonical: `/${locale}/about`, languages: languageAlternates(item => `/${item}/about`) },
+    openGraph: { title: m.about, description: m.aboutBody, url: `/${locale}/about`, images: defaultOgImage },
+  };
+}
 
 export default async function About({ params }: { params: Promise<{ locale: Locale }> }) {
   const { locale } = await params;

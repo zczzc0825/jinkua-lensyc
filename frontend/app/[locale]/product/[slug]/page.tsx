@@ -5,15 +5,17 @@ import { ProductDetailImageViewer } from "@/components/ProductDetailImageViewer"
 import { ProductMedia } from "@/components/ProductMedia";
 import { ProductPriceCard } from "@/components/ProductPriceCard";
 import { api } from "@/lib/api";
-import { locales, t } from "@/lib/i18n";
+import { t } from "@/lib/i18n";
 import { formatWeight } from "@/lib/price";
+import { defaultOgImage, languageAlternates } from "@/lib/seo";
 import { Locale } from "@/lib/types";
 import { headers } from "next/headers";
+import type { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: Locale; slug: string }> }) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: Locale; slug: string }> }): Promise<Metadata> {
   const { locale, slug } = await params;
-  try { const product = await api.product(slug, locale); return { title: `${product.title} — cooolmake`, description: product.short_description, openGraph: { title: product.title, description: product.short_description, images: product.main_image ? [product.main_image] : [] }, alternates: { canonical: `/${locale}/product/${slug}`, languages: Object.fromEntries(locales.map(item => [item, `/${item}/product/${slug}`])) } }; }
-  catch { return { title: "Product — cooolmake" }; }
+  try { const product = await api.product(slug, locale); const title = locale === "en" && product.seo_title_en ? product.seo_title_en : product.title; const description = (locale === "en" && product.seo_description_en ? product.seo_description_en : product.short_description) || product.title; return { title, description, openGraph: { title, description, images: product.main_image ? [product.main_image] : defaultOgImage }, alternates: { canonical: `/${locale}/product/${slug}`, languages: languageAlternates(item => `/${item}/product/${slug}`) } }; }
+  catch { return { title: "Product" }; }
 }
 
 export default async function Detail({ params }: { params: Promise<{ locale: Locale; slug: string }> }) {
@@ -23,6 +25,30 @@ export default async function Detail({ params }: { params: Promise<{ locale: Loc
   const host = (requestHeaders.get("x-forwarded-host") || requestHeaders.get("host") || "").trim();
   const proto = requestHeaders.get("x-forwarded-proto") || (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https");
   const productUrl = host ? `${proto}://${host}/${locale}/product/${slug}` : "";
+  const absolute = (value?: string) => value ? (value.startsWith("http") ? value : `${proto}://${host}${value}`) : "";
+  const productImages = [product.main_image, ...(product.gallery_images || [])].filter(Boolean).map(absolute);
+  const availability = ({ in_stock: "https://schema.org/InStock", limited_stock: "https://schema.org/LimitedAvailability", sold_out: "https://schema.org/OutOfStock" } as Record<string, string>)[product.stock_status] || "https://schema.org/InStock";
+  const jsonLd = [
+    {
+      "@context": "https://schema.org", "@type": "Product", name: product.title, sku: product.sku,
+      description: product.short_description || undefined,
+      image: productImages,
+      brand: { "@type": "Brand", name: "cooolmake" },
+      category: product.category?.name || undefined,
+      offers: {
+        "@type": "Offer", url: productUrl || undefined, availability, itemCondition: "https://schema.org/NewCondition",
+        ...(product.show_price && product.price ? { price: product.price, priceCurrency: "CNY" } : {}),
+      },
+    },
+    {
+      "@context": "https://schema.org", "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: { zh: "首页", en: "Home", ja: "ホーム", ko: "홈" }[locale], item: `${proto}://${host}/${locale}` },
+        ...(product.category ? [{ "@type": "ListItem", position: 2, name: product.category.name, item: `${proto}://${host}/${locale}/categories/${product.category.slug}` }] : []),
+        { "@type": "ListItem", position: product.category ? 3 : 2, name: product.title, item: productUrl || undefined },
+      ],
+    },
+  ];
   const askHref = `https://wa.me/${phone}?text=${encodeURIComponent(`Hi, I'm interested in this product:\n\nProduct ID: ${product.product_code}\nProduct: ${product.title}\nSKU: ${product.sku}\nLink: ${productUrl}\n\nCould you please send me the price and shipping details?`)}`;
   const m = t(locale);
   const availabilityLabel = { zh: "Availability", en: "Availability", ja: "Availability", ko: "Availability" }[locale];
@@ -52,6 +78,7 @@ export default async function Detail({ params }: { params: Promise<{ locale: Loc
     [labels.createdAt, formatDate(product.created_at)],
   ].filter((item): item is [string, string] => Boolean(item[1]));
   return <main className="container product-detail-page">
+    {productUrl ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} /> : null}
     <div className="detail">
       <ProductMedia image={product.main_image} galleryImages={product.gallery_images || []} video={product.video_url} variants={product.color_variants || []} locale={locale} />
       <div className="detail-copy">
