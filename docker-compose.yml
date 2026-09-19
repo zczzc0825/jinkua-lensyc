@@ -32,9 +32,14 @@ services:
   frontend:
     build:
       context: ./frontend
-      args: {API_URL: http://backend:8000, SITE_URL: ${SITE_URL:-https://cooolmake.com}}
+      args:
+        API_URL: http://backend:8000
+        SITE_URL: "${SITE_URL:-https://cooolmake.com}"
     restart: unless-stopped
-    environment: {API_URL: http://backend:8000, SITE_URL: ${SITE_URL:-https://cooolmake.com}, GOOGLE_SITE_VERIFICATION: ${GOOGLE_SITE_VERIFICATION:-}}
+    environment:
+      API_URL: http://backend:8000
+      SITE_URL: "${SITE_URL:-https://cooolmake.com}"
+      GOOGLE_SITE_VERIFICATION: "${GOOGLE_SITE_VERIFICATION:-}"
     ports: ["127.0.0.1:3000:3000"]
     depends_on: [backend]
 volumes: {plynook_data: {}}
