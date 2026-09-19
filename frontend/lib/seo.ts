@@ -1,80 +1,51 @@
+import { headers } from "next/headers";
+import { locales } from "./i18n";
 import { Locale } from "./types";
 
-export const SITE_NAME = "cooolmake";
-export const SITE_TAGLINE = "Art Toys, Home Decor & Desk Objects";
-export const DEFAULT_LOCALE: Locale = "en";
+export const seoCopy = {
+  home: {
+    en: { title: "cooolmake — Objects for curious spaces", description: "Art toys, expressive home decor and delightful desk companions. Browse the collection and get a personal quote on WhatsApp." },
+    zh: { title: "cooolmake — 有趣空间的个性好物", description: "精选潮玩、创意家居与桌面伙伴，四语浏览，通过 WhatsApp 获取一对一报价。" },
+    ja: { title: "cooolmake — 好奇心のある空間へ", description: "アートトイ、個性的なホーム雑貨、デスクアイテムのセレクトショップ。WhatsAppで気軽にお見積りをどうぞ。" },
+    ko: { title: "cooolmake — 호기심 가득한 공간", description: "아트 토이, 감각적인 홈 데코, 데스크 아이템 셀렉트숍. WhatsApp으로 직접 견적을 문의하세요." },
+  },
+  products: {
+    en: { title: "All products", description: "Every cooolmake piece in one place: art toys, home decor and desk companions. Filter by category or tag and ask for a personal quote." },
+    zh: { title: "全部商品", description: "cooolmake 全部商品一览：潮玩、创意家居与桌面好物。按分类或标签筛选，WhatsApp 一对一询价。" },
+    ja: { title: "すべての商品", description: "cooolmake の全商品をカテゴリーやタグで絞り込み。WhatsAppでお気軽にお見積りください。" },
+    ko: { title: "전체 상품", description: "cooolmake 전체 상품을 카테고리와 태그로 둘러보고, WhatsApp으로 견적을 문의하세요." },
+  },
+  contact: {
+    en: { title: "Contact", description: "Talk to a real person: send your inquiry list on WhatsApp or by email and we will confirm pricing, shipping and delivery." },
+    zh: { title: "联系我们", description: "通过 WhatsApp 或邮件直接联系我们，真人协助确认价格、运费与交付。" },
+    ja: { title: "お問い合わせ", description: "WhatsAppやメールでスタッフに直接お問い合わせください。価格、送料、納期をご案内します。" },
+    ko: { title: "문의하기", description: "WhatsApp이나 이메일로 직접 문의하세요. 가격, 배송비, 일정을 안내해 드립니다." },
+  },
+} as const;
 
-// 每个语言的核心关键词，用于 title/description 与结构化数据（title 会自动追加 " — cooolmake" 模板后缀）
-export const seoCopy: Record<Locale, { homeTitle: string; homeDescription: string; productsTitle: string; productsDescription: string; aboutTitle: string; aboutDescription: string; contactTitle: string; contactDescription: string }> = {
-  en: {
-    homeTitle: "Art Toys, Home Decor & Unique Desk Objects",
-    homeDescription: "Shop curated art toys, expressive home decor and unique desk objects. Small-batch designer pieces with worldwide delivery and personal sourcing.",
-    productsTitle: "All Products — Art Toys, Home Decor & Desk Objects",
-    productsDescription: "Browse the full cooolmake edit: collectible art toys, home decor objects and desk companions, shipped worldwide.",
-    aboutTitle: "About — An Independent Edit of Curious Objects",
-    aboutDescription: "cooolmake is an independent edit of art toys, desk companions and expressive home objects, selected slowly and shipped worldwide.",
-    contactTitle: "Contact — WhatsApp, Shipping & Wholesale Enquiries",
-    contactDescription: "Message cooolmake on WhatsApp for pricing, international shipping, wholesale and custom sourcing enquiries. We reply personally.",
-  },
-  zh: {
-    homeTitle: "艺术玩具、家居摆件与桌面好物",
-    homeDescription: "精选艺术玩具、家居装饰与桌面小物，小众设计师选品，全球配送，一对一选品服务。",
-    productsTitle: "全部商品 — 艺术玩具、家居与桌面好物",
-    productsDescription: "浏览 cooolmake 全部选品：艺术玩具、家居摆件与桌面伴侣，全球发货。",
-    aboutTitle: "关于 — 独立选品工作室",
-    aboutDescription: "cooolmake 是一个独立选品系列：艺术玩具、桌面伴侣与家居摆件，慢选细挑，全球配送。",
-    contactTitle: "联系 — WhatsApp 咨询、运费与批发",
-    contactDescription: "通过 WhatsApp 联系 cooolmake 咨询价格、国际运费、批发与定制选品，我们真人回复。",
-  },
-  ja: {
-    homeTitle: "アートトイとホームオブジェのセレクト",
-    homeDescription: "アートトイ、表現力のあるホームデコア、デスク雑貨をセレクト。少量ロットのデザイナーズ品を世界中にお届けします。",
-    productsTitle: "全商品 — アートトイ・ホームデコア・デスク雑貨",
-    productsDescription: "cooolmake の全セレクトをチェック：アートトイ、ホームオブジェ、デスクコンパニオンを全世界配送。",
-    aboutTitle: "私たちについて — 独立系セレクトショップ",
-    aboutDescription: "cooolmake はアートトイ、デスク雑貨、ホームオブジェの独立セレクトシリーズです。",
-    contactTitle: "お問い合わせ — WhatsApp・配送・卸売",
-    contactDescription: "価格、海外配送、卸売、カスタム調達について WhatsApp でお気軽にお問い合わせください。",
-  },
-  ko: {
-    homeTitle: "아트토이, 홈데코 & 데스크 오브제",
-    homeDescription: "아트토이, 개성 있는 홈 데코, 데스크 오브제를 엄선했습니다. 소량 프로듀서 아이템을 전 세계로 배송합니다.",
-    productsTitle: "전체 상품 — 아트토이, 홈데코, 데스크 오브제",
-    productsDescription: "cooolmake 전체 컬렉션: 아트토이, 홈 오브제, 데스크 컴패니언을 전 세계로 배송.",
-    aboutTitle: "소개 — 독립 큐레이션 숍",
-    aboutDescription: "cooolmake는 아트토이, 데스크 컴패니언, 홈 오브제의 독립 큐레이션 브랜드입니다.",
-    contactTitle: "문의하기 — WhatsApp, 배송 & 도매",
-    contactDescription: "가격, 국제 배송, 도매 및 커스텀 소싱 문의는 WhatsApp으로 연락해 주세요.",
-  },
-};
+export function seoCopyFor(group: keyof typeof seoCopy, locale: Locale) { return seoCopy[group][locale] || seoCopy[group].en; }
 
-export function absoluteUrl(path: string): string {
-  const base = (process.env.SITE_URL || "https://cooolmake.com").replace(/\/$/, "");
-  return `${base}${path.startsWith("/") ? path : `/${path}`}`;
+const envBase = () => (process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || "").trim().replace(/\/+$/, "");
+export const fallbackBaseUrl = "http://localhost:3000";
+
+export function configuredBaseUrl(): string { return envBase() || fallbackBaseUrl; }
+
+export async function siteBaseUrl(): Promise<string> {
+  const env = envBase();
+  if (env) return env;
+  try {
+    const requestHeaders = await headers();
+    const host = (requestHeaders.get("x-forwarded-host") || requestHeaders.get("host") || "").trim();
+    if (host) {
+      const proto = (requestHeaders.get("x-forwarded-proto") || (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https")).trim();
+      return `${proto}://${host}`;
+    }
+  } catch {}
+  return fallbackBaseUrl;
 }
 
-export type JsonLdObject = { [key: string]: unknown };
+export const defaultOgImage = [{ url: "/brand/og-default.png", width: 1200, height: 630, alt: "cooolmake" }];
 
-export function breadcrumbList(baseUrl: string, trail: { name: string; url: string }[]): JsonLdObject {
-  return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: trail.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.name,
-      item: item.url.startsWith("http") ? item.url : `${baseUrl}${item.url}`,
-    })),
-  };
-}
-
-export function organization(baseUrl: string): JsonLdObject {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: SITE_NAME,
-    url: baseUrl,
-    logo: absoluteUrl("/brand/logo_black.png"),
-    slogan: SITE_TAGLINE,
-  };
+export function languageAlternates(path: (locale: Locale) => string): Record<string, string> {
+  return Object.fromEntries([...locales.map(locale => [locale, path(locale)]), ["x-default", path("en")]]);
 }

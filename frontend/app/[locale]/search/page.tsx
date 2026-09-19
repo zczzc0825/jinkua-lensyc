@@ -1,2 +1,3 @@
-import {ProductBrowser} from "@/components/ProductBrowser";import {Locale} from "@/lib/types";import {t} from "@/lib/i18n";
+import type {Metadata} from "next";import {ProductBrowser} from "@/components/ProductBrowser";import {Locale} from "@/lib/types";import {t} from "@/lib/i18n";
+export async function generateMetadata({params,searchParams}:{params:Promise<{locale:Locale}>;searchParams:Promise<{q?:string}>}):Promise<Metadata>{const{locale}=await params;const{q=""}=await searchParams;return {title:q?`“${q}”`:t(locale).searchResults,robots:{index:false,follow:true}}}
 export default async function Search({params,searchParams}:{params:Promise<{locale:Locale}>;searchParams:Promise<{q?:string}>}){const{locale}=await params;const{q=""}=await searchParams;return <main className="container"><header className="page-hero"><h1 className="page-title">{t(locale).searchResults}</h1><p>“{q}”</p></header><ProductBrowser locale={locale} initialKeyword={q}/></main>}

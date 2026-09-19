@@ -1,19 +1,18 @@
 import { ArrowDownRight, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Locale } from "@/lib/types";
 import { t } from "@/lib/i18n";
-import { seoCopy, organization, absoluteUrl } from "@/lib/seo";
-import { JsonLd } from "@/components/JsonLd";
-import type { Metadata } from "next";
+import { defaultOgImage, languageAlternates } from "@/lib/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
   const { locale } = await params;
-  const c = seoCopy[locale] || seoCopy.en;
+  const m = t(locale);
   return {
-    title: c.aboutTitle,
-    description: c.aboutDescription,
-    alternates: { canonical: absoluteUrl(`/${locale}/about`) },
-    openGraph: { title: c.aboutTitle, description: c.aboutDescription, url: absoluteUrl(`/${locale}/about`), type: "website" },
+    title: m.about,
+    description: m.aboutBody,
+    alternates: { canonical: `/${locale}/about`, languages: languageAlternates(item => `/${item}/about`) },
+    openGraph: { title: m.about, description: m.aboutBody, url: `/${locale}/about`, images: defaultOgImage },
   };
 }
 
@@ -26,14 +25,6 @@ export default async function About({ params }: { params: Promise<{ locale: Loca
     "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=900&q=85",
   ];
   return <main className="container content-page about-page-enhanced">
-    <JsonLd data={[organization(absoluteUrl("")), {
-      "@context": "https://schema.org",
-      "@type": "AboutPage",
-      name: "About cooolmake",
-      description: seoCopy[locale]?.aboutDescription || seoCopy.en.aboutDescription,
-      url: absoluteUrl(`/${locale}/about`),
-      mainEntity: organization(absoluteUrl("")),
-    }]} />
     <header className="page-hero about-hero-card">
       <div>
         <span className="eyebrow">Our point of view</span>

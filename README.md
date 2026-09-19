@@ -136,6 +136,8 @@ Next.js 通过 rewrites 将 `/api/*`、`/storage/*` 代理到 `API_URL` 指向�
 | `QINIU_ACCESS_KEY` 等 | qiniu 时必填 | — | `QINIU_ACCESS_KEY` `QINIU_SECRET_KEY` `QINIU_BUCKET` `QINIU_DOMAIN` `QINIU_PREFIX` |
 | `AUTO_TRANSLATE` | 否 | `true` | 中文文案自动翻译开关 |
 | `ENABLE_DEMO_SEED` | 否 | 关闭 | 设为 `1` 时空库写入演示分类/标签/商品/Banner |
+| `SITE_URL` | 否 | `https://cooolmake.com` | 正式域名，用于 sitemap、canonical 与客户访问链接 |
+| `GOOGLE_SITE_VERIFICATION` | 否 | — | Google Search Console HTML 标记验证码（网域+DNS 验证则无需填写） |
 
 ## API 概览
 
@@ -173,6 +175,17 @@ Next.js 通过 rewrites 将 `/api/*`、`/storage/*` 代理到 `API_URL` 指向�
 **询盘成交（前台）**：顾客浏览商品 → 加入询价清单 → 通过 WhatsApp 发送给客服 → 客服在后台创建客户订单（含成本与两段运费）→ 顾客凭订单号 + 密码在订单页补充收货信息并确认 → 后台维护物流单号，顾客持续跟踪。
 
 **采购报价（代购场景）**：顾客提交想采购的商品 → 客服在后台创建报价单（中文录入，自动翻译英文展示；锁定当日汇率）→ 发布后顾客凭密码访问报价页，逐项确认、添加商品、设定预期到货时间 → 双方确认后可导出 Excel 留档（含成本与利润核算，仅供内部）。
+
+## Google 收录（SEO）
+
+前台已内置：各页面四语言 metadata 与 canonical/hreflang、`/robots.txt`、`/sitemap.xml`（自动含全部商品/分类）、商品页 Product/Breadcrumb 结构化数据、默认分享图 `frontend/public/brand/og-default.png`。
+
+上线后启用收录：
+
+1. 确认 `https://cooolmake.com/robots.txt` 与 `/sitemap.xml` 可访问；
+2. 在 [Google Search Console](https://search.google.com/search-console) 添加「网域」资源 `cooolmake.com`，按提示在域名解析商处加一条 TXT 记录完成验证（或用「网址前缀」+ HTML 标记方式，将验证码填入 `GOOGLE_SITE_VERIFICATION` 后重建前端）；
+3. Search Console「站点地图」中提交 `sitemap.xml`；
+4. 搜索页/询价单/订单页/后台已配置 `noindex`，属预期行为。
 
 ## 注意事项
 

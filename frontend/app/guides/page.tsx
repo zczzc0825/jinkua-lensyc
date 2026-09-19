@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getGuidesIndexAsync } from "@/lib/guides";
-import { absoluteUrl } from "@/lib/seo";
+import { configuredBaseUrl } from "@/lib/seo";
+const absoluteUrl = (path: string) => `${configuredBaseUrl()}${path.startsWith("/") ? "" : "/"}${path}`;
 import { JsonLd } from "@/components/JsonLd";
 import "./guides.css";
 

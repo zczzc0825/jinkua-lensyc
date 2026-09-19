@@ -54,7 +54,7 @@ export function Header({ locale }: { locale: Locale }) {
     </div>
     <nav className="nav">
       <Link className="brand-logo brand-slot" href={`/${locale}`} aria-label="cooolmake home">
-        <img className="brand-logo-light" src="/brand/logo_black.png" alt="cooolmake — art toys, home decor and desk objects" />
+        <img className="brand-logo-light" src="/brand/logo_black.png" alt="" aria-hidden="true" />
         <img className="brand-logo-dark" src="/brand/logo_w.png" alt="" aria-hidden="true" />
       </Link>
       <div className="nav-links">{menu}</div>
@@ -102,7 +102,7 @@ export function Footer({ locale }: { locale: Locale }) {
   return <footer className="footer">
     <div className="container footer-intro">
       <Link className="brand-logo brand-slot footer-brand-slot" href={`/${locale}`} aria-label="cooolmake home">
-        <img className="brand-logo-light" src="/brand/logo_black.png" alt="cooolmake — art toys, home decor and desk objects" />
+        <img className="brand-logo-light" src="/brand/logo_black.png" alt="" aria-hidden="true" />
         <img className="brand-logo-dark" src="/brand/logo_w.png" alt="" aria-hidden="true" />
       </Link>
       <h2>Objects that make a room feel <em>lived in.</em></h2>
@@ -115,7 +115,6 @@ export function Footer({ locale }: { locale: Locale }) {
       <div>
         <strong>Explore</strong>
         <Link href={`/${locale}/products`}>{m.shop}</Link>
-        <Link href={`/${locale}/products?collection=new&sort=newest`}>New arrivals</Link>
         <Link href="/guides">Guides</Link>
         <Link href={`/${locale}/about`}>{m.about}</Link>
         <Link href={`/${locale}/contact`}>{m.contact}</Link>

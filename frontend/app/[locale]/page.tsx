@@ -1,23 +1,22 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowDownRight, ArrowRight, MessageCircle, PackageCheck } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { api } from "@/lib/api";
 import { t } from "@/lib/i18n";
-import { Locale } from "@/lib/types";
-import { seoCopy, organization, absoluteUrl } from "@/lib/seo";
-import { JsonLd } from "@/components/JsonLd";
+import { defaultOgImage, languageAlternates, seoCopyFor } from "@/lib/seo";
 import { getGuidesIndexAsync } from "@/lib/guides";
 import "./home-guides.css";
-import type { Metadata } from "next";
+import { Locale } from "@/lib/types";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
   const { locale } = await params;
-  const c = seoCopy[locale] || seoCopy.en;
+  const copy = seoCopyFor("home", locale);
   return {
-    title: c.homeTitle,
-    description: c.homeDescription,
-    alternates: { canonical: absoluteUrl(`/${locale}`), languages: Object.fromEntries(["en", "zh", "ja", "ko"].map(item => [item, absoluteUrl(`/${item}`)])) },
-    openGraph: { title: c.homeTitle, description: c.homeDescription, url: absoluteUrl(`/${locale}`), type: "website", locale },
+    title: { absolute: copy.title },
+    description: copy.description,
+    alternates: { canonical: `/${locale}`, languages: languageAlternates(item => `/${item}`) },
+    openGraph: { title: copy.title, description: copy.description, url: `/${locale}`, images: defaultOgImage },
   };
 }
 
@@ -61,11 +60,10 @@ export default async function Home({ params }: { params: Promise<{ locale: Local
   });
 
   return <main className="home-page">
-    <JsonLd data={organization(absoluteUrl(""))} />
     <section className="container lifestyle-hero">
       <div className="lifestyle-hero-copy">
         <span className="eyebrow">Independent objects · Edition 01</span>
-        <h1>Art toys, home decor and desk objects<br /><em>with a point of view.</em></h1>
+        <h1>Objects with<br /><em>a point of view.</em></h1>
         <p>A considered collection of art toys, home objects and everyday curiosities for spaces that feel distinctly yours.</p>
         <div className="hero-buttons">
           <Link className="btn btn-accent" href={`/${locale}/products?collection=new&sort=newest`}>View the collection <ArrowRight size={17} /></Link>
@@ -79,7 +77,7 @@ export default async function Home({ params }: { params: Promise<{ locale: Local
       </div>
       <div className="lifestyle-hero-visual" aria-label="Selected objects">
         {heroImages.map((product, index) => <Link href={`/${locale}/product/${product.slug}`} className={`hero-product-tile tile-${index + 1}`} key={product.id}>
-          <img src={product.main_image} alt={`${product.title} — art toy & home object`} width={480} height={600} />
+          <img src={product.main_image} alt={product.title} />
           <span>{String(index + 1).padStart(2, "0")} — {product.title}</span>
         </Link>)}
         <div className="hero-note"><span>Current edit</span><strong>Form, colour<br />and character.</strong></div>
@@ -111,7 +109,7 @@ export default async function Home({ params }: { params: Promise<{ locale: Local
       <div className="category-directory-list">
         {categoryStories.map((category, index) => <Link className="category-directory-item" key={category.name} href={category.href}>
           <span className="category-directory-index">0{index + 1}</span>
-          <div className="category-directory-image"><img src={category.image} alt={`${category.name} collection at cooolmake`} loading="lazy" width={480} height={360} /></div>
+          <div className="category-directory-image"><img src={category.image} alt="" /></div>
           <div className="category-directory-copy"><h3>{category.name}</h3><p>{category.text}</p><small>{directory.discover}</small></div>
           <span className="category-directory-arrow" aria-hidden="true"><ArrowRight size={16} /></span>
         </Link>)}

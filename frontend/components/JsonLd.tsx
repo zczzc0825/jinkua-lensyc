@@ -1,4 +1,4 @@
-import { JsonLdObject } from "@/lib/seo";
+export type JsonLdObject = { [key: string]: unknown };
 
 export function JsonLd({ data }: { data: JsonLdObject | JsonLdObject[] }) {
   const payload = Array.isArray(data) ? data : [data];

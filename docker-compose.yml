@@ -17,7 +17,7 @@ services:
       ADMIN_USERNAME: ${ADMIN_USERNAME:?ADMIN_USERNAME is required}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
-      SITE_URL: ${SITE_URL:-}
+      SITE_URL: ${SITE_URL:-https://cooolmake.com}
       STORAGE_BACKEND: ${STORAGE_BACKEND:-local}
       ENABLE_DEMO_SEED: ${ENABLE_DEMO_SEED:-}
       ORPHAN_GRACE_HOURS: ${ORPHAN_GRACE_HOURS:-24}
@@ -32,9 +32,14 @@ services:
   frontend:
     build:
       context: ./frontend
-      args: {API_URL: http://backend:8000}
+      args:
+        API_URL: http://backend:8000
+        SITE_URL: "${SITE_URL:-https://cooolmake.com}"
     restart: unless-stopped
-    environment: {API_URL: http://backend:8000}
+    environment:
+      API_URL: http://backend:8000
+      SITE_URL: "${SITE_URL:-https://cooolmake.com}"
+      GOOGLE_SITE_VERIFICATION: "${GOOGLE_SITE_VERIFICATION:-}"
     ports: ["127.0.0.1:3000:3000"]
     depends_on: [backend]
 volumes: {plynook_data: {}}

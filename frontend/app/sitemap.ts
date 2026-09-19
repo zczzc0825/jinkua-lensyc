@@ -1,67 +1,56 @@
 import type { MetadataRoute } from "next";
 import { api } from "@/lib/api";
 import { locales } from "@/lib/i18n";
+import { configuredBaseUrl, languageAlternates } from "@/lib/seo";
 import { getAllGuidesAsync } from "@/lib/guides";
 
-// 静态页面路由（不含 locale 前缀），自动为每个语言生成带 hreflang 的条目
-const staticPaths = ["", "/products", "/about", "/contact"];
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = (process.env.SITE_URL || "https://cooolmake.com").replace(/\/$/, "");
-  const now = new Date();
+  const base = configuredBaseUrl();
   const entries: MetadataRoute.Sitemap = [];
-
-  const withAlternates = (path: string, changeFrequency: "daily" | "weekly" | "monthly", priority: number) => ({
-    url: `${base}/en${path}`,
-    lastModified: now,
-    changeFrequency,
-    priority,
-    alternates: {
-      languages: Object.fromEntries(locales.map(locale => [locale, `${base}/${locale}${path}`])),
-    },
-  });
-
-  for (const path of staticPaths) {
-    entries.push(withAlternates(path, path === "" ? "daily" : "weekly", path === "" ? 1 : 0.8));
+  for (const path of ["", "/products", "/about", "/contact"]) {
+    for (const locale of locales) {
+      entries.push({
+        url: `${base}/${locale}${path}`,
+        changeFrequency: path === "" ? "daily" : "weekly",
+        priority: path === "" ? 1 : 0.8,
+        alternates: { languages: languageAlternates(item => `${base}/${item}${path}`) },
+      });
+    }
   }
-
+  try {
+    for (let page = 1; page <= 100; page++) {
+      const data = await api.products(new URLSearchParams({ page: String(page), page_size: "100" }));
+      for (const item of data.items) {
+        for (const locale of locales) {
+          entries.push({
+            url: `${base}/${locale}/product/${item.slug}`,
+            lastModified: item.published_at ? new Date(item.published_at) : undefined,
+            changeFrequency: "weekly",
+            priority: 0.7,
+            alternates: { languages: languageAlternates(item2 => `${base}/${item2}/product/${item.slug}`) },
+          });
+        }
+      }
+      if (page * 100 >= data.total) break;
+    }
+  } catch {}
   try {
     const categories = await api.categories("en");
-    const products: Awaited<ReturnType<typeof api.products>>["items"] = [];
-    for (let page = 1; page <= 10; page++) {
-      const result = await api.products(new URLSearchParams({ locale: "en", page: String(page), page_size: "100" }));
-      products.push(...result.items);
-      if (products.length >= result.total || result.items.length === 0) break;
-    }
     for (const category of categories) {
-      entries.push({
-        url: `${base}/en/categories/${category.slug}`,
-        lastModified: now,
-        changeFrequency: "weekly",
-        priority: 0.7,
-        alternates: { languages: Object.fromEntries(locales.map(locale => [locale, `${base}/${locale}/categories/${category.slug}`])) },
-      });
+      for (const locale of locales) {
+        entries.push({
+          url: `${base}/${locale}/categories/${category.slug}`,
+          changeFrequency: "weekly",
+          priority: 0.6,
+          alternates: { languages: languageAlternates(item => `${base}/${item}/categories/${category.slug}`) },
+        });
+      }
     }
-    for (const product of products) {
-      entries.push({
-        url: `${base}/en/product/${product.slug}`,
-        lastModified: product.published_at ? new Date(product.published_at) : now,
-        changeFrequency: "weekly",
-        priority: 0.9,
-        alternates: { languages: Object.fromEntries(locales.map(locale => [locale, `${base}/${locale}/product/${product.slug}`])) },
-      });
-    }
-  } catch {
-    // 后端不可用时 sitemap 仍输出静态页面
-  }
-
+  } catch {}
   // Guides 专栏（英文唯一版本，canonical 指向自身）
-  entries.push({
-    url: `${base}/guides`,
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.7,
-  });
+  entries.push({ url: `${base}/guides`, changeFrequency: "weekly", priority: 0.7 });
   for (const guide of await getAllGuidesAsync()) {
     entries.push({
       url: `${base}/guides/${guide.slug}`,
@@ -70,6 +59,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     });
   }
-
   return entries;
 }

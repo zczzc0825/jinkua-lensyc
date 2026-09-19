@@ -1,2 +1,3 @@
-import {WishlistPage} from "@/components/WishlistPage";import {Locale} from "@/lib/types";import {t} from "@/lib/i18n";
+import type {Metadata} from "next";import {WishlistPage} from "@/components/WishlistPage";import {Locale} from "@/lib/types";import {t} from "@/lib/i18n";
+export async function generateMetadata({params}:{params:Promise<{locale:Locale}>}):Promise<Metadata>{const{locale}=await params;return {title:t(locale).inquiry,robots:{index:false,follow:true}}}
 export default async function Page({params}:{params:Promise<{locale:Locale}>}){const{locale}=await params;return <main className="container"><header className="page-hero"><span className="eyebrow">Get a personal quote</span><h1 className="page-title">{t(locale).inquiry}</h1></header><WishlistPage locale={locale}/></main>}
