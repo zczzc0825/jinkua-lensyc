@@ -20,12 +20,12 @@ export const metadata: Metadata = {
 
 // 分类封面图（本地矢量图，避免外站图床被墙导致裂图；frontmatter cover 优先）
 const CATEGORY_COVER: Record<string, string> = {
-  "pet supplies wholesale China": "/guides/cover-sourcing.png",
-  "designer toys wholesale": "/guides/cover-designer-toys.png",
-  "custom products with logo China": "/guides/cover-custom-brand.png",
-  "China wholesale shipping": "/guides/cover-shipping.png",
+  "pet supplies wholesale China": "/guides/pet-supplies-cover.jpg",
+  "designer toys wholesale": "/guides/designer-toy-cover.jpg",
+  "custom products with logo China": "/guides/custom-packaging-cover.jpg",
+  "China wholesale shipping": "/guides/shipping-cover.jpg",
 };
-const DEFAULT_COVER = "/guides/cover-sourcing.png";
+const DEFAULT_COVER = "/guides/pet-supplies-cover.jpg";
 
 type Props = { searchParams: Promise<{ cat?: string }> };
 
