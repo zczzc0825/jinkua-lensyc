@@ -18,13 +18,14 @@ export const metadata: Metadata = {
   },
 };
 
-// 分类封面图（frontmatter 未指定 cover 时按分类回退）
+// 分类封面图（本地矢量图，避免外站图床被墙导致裂图；frontmatter cover 优先）
 const CATEGORY_COVER: Record<string, string> = {
-  "pet supplies wholesale China": "https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=1200&q=80",
-  "designer toys wholesale": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=1200&q=80",
-  "custom products with logo China": "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?auto=format&fit=crop&w=1200&q=80",
-  "China wholesale shipping": "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1200&q=80",
+  "pet supplies wholesale China": "/guides/cover-sourcing.svg",
+  "designer toys wholesale": "/guides/cover-designer-toys.svg",
+  "custom products with logo China": "/guides/cover-custom-brand.svg",
+  "China wholesale shipping": "/guides/cover-shipping.svg",
 };
+const DEFAULT_COVER = "/guides/cover-sourcing.svg";
 
 type Props = { searchParams: Promise<{ cat?: string }> };
 
@@ -55,7 +56,7 @@ export default async function GuidesPage({ searchParams }: Props) {
         {shown.map(g => (
           <Link key={g.slug} href={`/guides/${g.slug}`} className="guides-card">
             <div className="guides-cover">
-              <img src={g.cover || CATEGORY_COVER[g.category] || CATEGORY_COVER["Sourcing"]} alt={g.title} loading="lazy" decoding="async" width={880} height={550} />
+              <img src={g.cover || CATEGORY_COVER[g.category] || DEFAULT_COVER} alt={g.title} loading="lazy" decoding="async" width={880} height={550} />
             </div>
             <span className="guides-cat-label">{g.category}</span>
             <h2>{g.title}</h2>

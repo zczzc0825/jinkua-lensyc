@@ -17,10 +17,10 @@ export interface Guide extends GuideMeta { html: string; toc: { id: string; text
 const DIR = path.join(process.cwd(), "content", "guides");
 
 function parseFrontmatter(raw: string): { data: Record<string, string>; body: string } {
-  const m = /^---\n([\s\S]*?)\n---\n?([\s\S]*)$/.exec(raw);
+  const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/.exec(raw);
   if (!m) return { data: {}, body: raw };
   const data: Record<string, string> = {};
-  for (const line of m[1].split("\n")) {
+  for (const line of m[1].split(/\r?\n/)) {
     const kv = /^([A-Za-z_][\w-]*)\s*:\s*(.*)$/.exec(line.trim());
     if (kv) data[kv[1]] = kv[2].replace(/^["']|["']$/g, "").trim();
   }
