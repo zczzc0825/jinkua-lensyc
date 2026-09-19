@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { api } from "@/lib/api";
 import { locales } from "@/lib/i18n";
+import { getAllGuidesAsync } from "@/lib/guides";
 
 // 静态页面路由（不含 locale 前缀），自动为每个语言生成带 hreflang 的条目
 const staticPaths = ["", "/products", "/about", "/contact"];
@@ -52,6 +53,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch {
     // 后端不可用时 sitemap 仍输出静态页面
+  }
+
+  // Guides 专栏（英文唯一版本，canonical 指向自身）
+  entries.push({
+    url: `${base}/guides`,
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.7,
+  });
+  for (const guide of await getAllGuidesAsync()) {
+    entries.push({
+      url: `${base}/guides/${guide.slug}`,
+      lastModified: new Date(guide.date),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    });
   }
 
   return entries;

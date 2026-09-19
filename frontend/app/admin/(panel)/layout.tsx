@@ -7,6 +7,7 @@ import {
   BarChart3,
   ClipboardList,
   FileSpreadsheet,
+  FileText,
   Image,
   LayoutDashboard,
   LogOut,
@@ -23,6 +24,7 @@ import { adminFetch } from "@/lib/api";
 const links = [
   ["/admin/dashboard", "数据看板", LayoutDashboard],
   ["/admin/products", "商品管理", Package],
+  ["/admin/articles", "文章管理", FileText],
   ["/admin/orders", "订单管理", ClipboardList],
   ["/admin/procurements", "商品采购单", FileSpreadsheet],
   ["/admin/categories", "分类管理", Shapes],

@@ -42,6 +42,7 @@ export function Header({ locale }: { locale: Locale }) {
     <Link onClick={() => setOpen(false)} href={`/${locale}`}>{m.home}</Link>
     <Link onClick={() => setOpen(false)} href={`/${locale}/products`}>{m.shop}</Link>
     <Link onClick={() => setOpen(false)} href={`/${locale}/products?collection=new&sort=newest`}>{m.newArrivals}</Link>
+    <Link onClick={() => setOpen(false)} href="/guides">{m.guides}</Link>
     <Link onClick={() => setOpen(false)} href={`/${locale}/about`}>{m.about}</Link>
     <Link onClick={() => setOpen(false)} href={`/${locale}/contact`}>{m.contact}</Link>
   </>;
@@ -115,6 +116,7 @@ export function Footer({ locale }: { locale: Locale }) {
         <strong>Explore</strong>
         <Link href={`/${locale}/products`}>{m.shop}</Link>
         <Link href={`/${locale}/products?collection=new&sort=newest`}>New arrivals</Link>
+        <Link href="/guides">Guides</Link>
         <Link href={`/${locale}/about`}>{m.about}</Link>
         <Link href={`/${locale}/contact`}>{m.contact}</Link>
       </div>

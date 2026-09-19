@@ -186,8 +186,27 @@ class Product(Base):
     tags: Mapped[List[Tag]] = relationship(secondary="product_tags")
 
 
+class Article(Base):
+    __tablename__ = "articles"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    slug: Mapped[str] = mapped_column(String(200), unique=True, index=True)
+    title: Mapped[str] = mapped_column(String(255))
+    summary: Mapped[Optional[str]] = mapped_column(Text)
+    content: Mapped[Optional[str]] = mapped_column(Text)
+    category: Mapped[Optional[str]] = mapped_column(String(255))
+    keywords: Mapped[Optional[str]] = mapped_column(String(500))
+    cover_image: Mapped[Optional[str]] = mapped_column(Text)
+    is_published: Mapped[bool] = mapped_column(Boolean, default=False)
+    published_at: Mapped[Optional[datetime]] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_by_id: Mapped[Optional[int]] = mapped_column(Integer)
+    updated_by_id: Mapped[Optional[int]] = mapped_column(Integer)
+
+
 class Banner(Base):
     __tablename__ = "banners"
+
     id: Mapped[int] = mapped_column(primary_key=True)
     title_en: Mapped[str] = mapped_column(String(255))
     title_ja: Mapped[Optional[str]] = mapped_column(String(255))
@@ -411,6 +430,17 @@ class ProductInput(Input):
     sort_order: int = 0
     allow_whatsapp: bool = True
     auto_translate: bool = True
+
+
+class ArticleInput(Input):
+    slug: str
+    title: str
+    summary: Optional[str] = None
+    content: Optional[str] = None
+    category: Optional[str] = None
+    keywords: Optional[str] = None
+    cover_image: Optional[str] = None
+    is_published: bool = False
 
 
 class BannerInput(Input):
@@ -660,6 +690,19 @@ def serialize_category(c: Category, locale: str = "en"):
 
 def serialize_tag(t: Tag, locale: str = "en"):
     return {"id": t.id, "slug": t.slug, "name": localized(t, "name", locale), "color": t.color, "sort_order": t.sort_order, "is_active": t.is_active, **{k: getattr(t, k) for k in ("name_en", "name_ja", "name_ko", "name_zh")}}
+
+
+def serialize_article(a: Article, include_content: bool = True):
+    data = {
+        "id": a.id, "slug": a.slug, "title": a.title, "summary": a.summary,
+        "category": a.category, "keywords": a.keywords, "cover_image": a.cover_image,
+        "is_published": a.is_published,
+        "published_at": a.published_at.strftime("%Y-%m-%d") if a.published_at else None,
+        "created_at": a.created_at.isoformat() + "Z" if a.created_at else None,
+        "updated_at": a.updated_at.isoformat() + "Z" if a.updated_at else None,
+    }
+    if include_content: data["content"] = a.content
+    return data
 
 
 def order_total_from_costs(product_cost: float = 0, first_leg_cost: float = 0, last_leg_cost: float = 0) -> float:
@@ -1358,6 +1401,14 @@ def public_categories(locale: str = "en", db: Session = Depends(get_db)):
 @app.get("/api/public/tags")
 def public_tags(locale: str = "en", db: Session = Depends(get_db)):
     return [serialize_tag(x, locale) for x in db.query(Tag).filter(Tag.is_active.is_(True)).order_by(Tag.sort_order).all()]
+
+
+@app.get("/api/public/articles")
+def public_articles(slug: Optional[str] = None, category: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(Article).filter(Article.is_published.is_(True))
+    if slug: query = query.filter(Article.slug == slug)
+    if category: query = query.filter(Article.category == category)
+    return [serialize_article(x, include_content=bool(slug)) for x in query.order_by(Article.published_at.desc()).all()]
 
 
 def analytics_visitor_expr():
@@ -2103,6 +2154,7 @@ def register_simple_crud(path: str, model, schema, serializer):
         if item: db.delete(item); db.commit()
 
 
+register_simple_crud("/api/admin/articles", Article, ArticleInput, serialize_article)
 register_simple_crud("/api/admin/categories", Category, CategoryInput, serialize_category)
 register_simple_crud("/api/admin/tags", Tag, TagInput, serialize_tag)
 register_simple_crud("/api/admin/banners", Banner, BannerInput, lambda b: {c.name: getattr(b, c.name) for c in b.__table__.columns})

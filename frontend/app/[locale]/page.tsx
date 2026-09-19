@@ -6,6 +6,8 @@ import { t } from "@/lib/i18n";
 import { Locale } from "@/lib/types";
 import { seoCopy, organization, absoluteUrl } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
+import { getGuidesIndexAsync } from "@/lib/guides";
+import "./home-guides.css";
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: Locale }> }): Promise<Metadata> {
@@ -113,6 +115,23 @@ export default async function Home({ params }: { params: Promise<{ locale: Local
           <div className="category-directory-copy"><h3>{category.name}</h3><p>{category.text}</p><small>{directory.discover}</small></div>
           <span className="category-directory-arrow" aria-hidden="true"><ArrowRight size={16} /></span>
         </Link>)}
+      </div>
+    </section>
+
+    <section className="section container home-guides-section" aria-label="Guides">
+      <div className="section-head">
+        <div><span className="eyebrow">03 / Guides</span><h2>{m.guides}</h2><p>Sourcing playbooks for creative buyers — inquiry, shipping and wholesale, explained.</p></div>
+        <Link href="/guides">{m.explore} <ArrowRight size={15} /></Link>
+      </div>
+      <div className="home-guides-grid">
+        {(await getGuidesIndexAsync()).list.slice(0, 3).map(guide => (
+          <Link className="home-guide-card" key={guide.slug} href={`/guides/${guide.slug}`}>
+            <span className="home-guide-tag">{guide.category}</span>
+            <h3>{guide.title}</h3>
+            <p>{guide.description}</p>
+            <small>Read guide →</small>
+          </Link>
+        ))}
       </div>
     </section>
 
