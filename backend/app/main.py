@@ -569,37 +569,62 @@ def localized(obj: Any, field: str, locale: str):
     return getattr(obj, f"{field}_{locale}", None) or getattr(obj, f"{field}_en", None)
 
 
+import time as _time
+
 _translation_cache: Dict[str, str] = {}
-_translation_disabled: set[str] = set()
+_provider_cooldown: Dict[str, float] = {}
+PROVIDER_COOLDOWN_SECONDS = 300
 TRANSLATION_LANGPAIRS = {"en": "zh-CN|en", "ja": "zh-CN|ja", "ko": "zh-CN|ko"}
+TRANSLATION_TARGETS = {"en": "en", "ja": "ja", "ko": "ko"}
+
+
+def _translate_via_mymemory(text_value: str, langpair: str) -> Optional[str]:
+    translated_parts = []
+    for start in range(0, len(text_value), 140):
+        chunk = text_value[start:start + 140]
+        response = httpx.get("https://api.mymemory.translated.net/get", params={"q": chunk, "langpair": langpair}, headers={"User-Agent": "cooolmake/1.0"}, timeout=8)
+        response.raise_for_status()
+        payload = response.json()
+        translated_parts.append(payload["responseData"]["translatedText"])
+    return " ".join(translated_parts)
+
+
+def _translate_via_google(text_value: str, target: str) -> Optional[str]:
+    translated_parts = []
+    for start in range(0, len(text_value), 400):
+        chunk = text_value[start:start + 400]
+        response = httpx.get("https://translate.googleapis.com/translate_a/single", params={"client": "gtx", "sl": "zh-CN", "tl": target, "dt": "t", "q": chunk}, headers={"User-Agent": "Mozilla/5.0"}, timeout=8)
+        response.raise_for_status()
+        payload = response.json()
+        translated_parts.append("".join(part[0] for part in payload[0] if part and part[0]))
+    return " ".join(translated_parts)
 
 
 def translate_zh(value: Optional[str], target: str = "en") -> Optional[str]:
-    """Translate Chinese product copy to the requested locale; keep the source text if the service is unavailable."""
+    """Translate Chinese copy to the requested locale; return None when every provider fails so callers can fall back."""
     if not value or not value.strip():
         return None
-    target = target if target in TRANSLATION_LANGPAIRS else "en"
+    target = TRANSLATION_TARGETS.get(target) or "en"
     text_value = value.strip()
     cache_key = f"{target}:{text_value}"
     if cache_key in _translation_cache:
         return _translation_cache[cache_key]
-    if target in _translation_disabled or not os.getenv("AUTO_TRANSLATE", "true").lower() in ("1", "true", "yes"):
-        return text_value
-    try:
-        translated_parts = []
-        for start in range(0, len(text_value), 140):
-            chunk = text_value[start:start + 140]
-            response = httpx.get("https://api.mymemory.translated.net/get", params={"q": chunk, "langpair": TRANSLATION_LANGPAIRS[target]}, headers={"User-Agent": "cooolmake/1.0"}, timeout=8)
-            response.raise_for_status()
-            payload = response.json()
-            translated_parts.append(payload["responseData"]["translatedText"])
-        translated = " ".join(translated_parts).strip().strip("\"'‘’“”")
-        if translated and translated != "INVALID LANGUAGE PAIR SPECIFIED":
+    if not os.getenv("AUTO_TRANSLATE", "true").lower() in ("1", "true", "yes"):
+        return None
+    providers = (("mymemory", _translate_via_mymemory, TRANSLATION_LANGPAIRS[target]), ("google", _translate_via_google, target))
+    now = _time.monotonic()
+    for name, provider, arg in providers:
+        if _provider_cooldown.get(name, 0) > now:
+            continue
+        try:
+            translated = (provider(text_value, arg) or "").strip().strip("\"'‘’“”")
+        except Exception:
+            _provider_cooldown[name] = now + PROVIDER_COOLDOWN_SECONDS
+            continue
+        if translated and translated != text_value and translated != "INVALID LANGUAGE PAIR SPECIFIED":
             _translation_cache[cache_key] = translated
             return translated
-    except Exception:
-        _translation_disabled.add(target)
-    return text_value
+    return None
 
 
 def translate_zh_to_en(value: Optional[str]) -> Optional[str]:
@@ -817,7 +842,7 @@ def translate_procurement_item(item: Dict[str, Any]) -> Dict[str, Any]:
         source_marker = f"{english_key}_source"
         if translated.get(source_marker) == source and translated.get(english_key):
             continue
-        translated[english_key] = translate_zh(source, "en") if source and has_cjk(source) else source
+        translated[english_key] = (translate_zh(source, "en") if has_cjk(source) else source) or source
         translated[source_marker] = source
     return translated
 
