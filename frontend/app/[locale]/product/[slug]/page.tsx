@@ -6,7 +6,7 @@ import { ProductMedia } from "@/components/ProductMedia";
 import { ProductPriceCard } from "@/components/ProductPriceCard";
 import { api } from "@/lib/api";
 import { t } from "@/lib/i18n";
-import { formatWeight } from "@/lib/price";
+import { formatSize, formatWeight } from "@/lib/price";
 import { defaultOgImage, languageAlternates } from "@/lib/seo";
 import { Locale } from "@/lib/types";
 import { headers } from "next/headers";
@@ -66,14 +66,14 @@ export default async function Detail({ params }: { params: Promise<{ locale: Loc
   const formatDate = (value?: string) => value ? new Intl.DateTimeFormat(locale === "zh" ? "zh-CN" : locale, { year: "numeric", month: "short", day: "numeric" }).format(new Date(value)) : "";
   const cleanFeature = (value: string) => value.replace(/^\s*(\d+[\.\)、:-]?|[-*•])\s*/g, "").replace(/MXXT|undefined|null/gi, "").trim();
   const features = (product.features || []).map(cleanFeature).filter(Boolean);
-  const specs = [["Material", product.material], ["Size", product.size], ["Weight", product.weight ? formatWeight(product.weight) : ""], ["Packaging", product.package_info], ["Best for", product.usage_scene]];
+  const specs = [["Material", product.material], ["Size", formatSize(product.size || "", locale)], ["Weight", product.weight ? formatWeight(product.weight, locale) : ""], ["Packaging", product.package_info], ["Best for", product.usage_scene]];
   const publicProduct = { ...product, source_platform: undefined, source_url: undefined };
   const publicRelated = product.related?.map(item => ({ ...item, source_platform: undefined, source_url: undefined })) || [];
   const listingDetails = [
     [labels.productCode, product.product_code],
     [labels.sku, product.sku],
     [labels.category, product.category?.name],
-    [labels.weight, product.weight ? formatWeight(product.weight) : ""],
+    [labels.weight, product.weight ? formatWeight(product.weight, locale) : ""],
     [labels.publishedAt, formatDate(product.published_at)],
     [labels.createdAt, formatDate(product.created_at)],
   ].filter((item): item is [string, string] => Boolean(item[1]));
