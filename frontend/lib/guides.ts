@@ -80,9 +80,11 @@ async function fetchDbArticles(): Promise<DbArticle[]> {
 }
 
 export async function getAllGuidesAsync(): Promise<Guide[]> {
-  const merged = [...getAllGuides()];
-  for (const a of await fetchDbArticles()) {
-    if (merged.some(g => g.slug === a.slug)) continue; // md 与后台同名时以 md 为准
+  // 后台数据库版本优先（可在管理后台编辑），md 文件仅作数据库不可用时的兜底
+  const dbArticles = await fetchDbArticles();
+  const dbSlugs = new Set(dbArticles.map(a => a.slug));
+  const merged: Guide[] = getAllGuides().filter(g => !dbSlugs.has(g.slug));
+  for (const a of dbArticles) {
     const { html, toc } = renderMarkdown(a.content || a.summary || "");
     merged.push({
       slug: a.slug, title: a.title, description: a.summary || "",

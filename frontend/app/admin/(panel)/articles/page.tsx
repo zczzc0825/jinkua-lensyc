@@ -46,6 +46,7 @@ export default function Page() {
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const contentImgRef = useRef<HTMLInputElement>(null);
   const mdRef = useRef<HTMLInputElement>(null);
 
   const load = () => adminFetch<Article[]>("/api/admin/articles").then(setItems);
@@ -85,6 +86,26 @@ export default function Page() {
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  // 正文插图：上传后把 Markdown 图片语法追加到正文末尾，可继续编辑位置与alt说明
+  async function uploadContentImage(file: File | undefined) {
+    if (!file) return;
+    setError(""); setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const token = localStorage.getItem("plynook_token");
+      const res = await fetch("/api/admin/upload/image", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: form });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      setEditing(prev => prev ? { ...prev, content: `${(prev.content || "").trimEnd()}\n\n![](${data.url})\n` } : prev);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "上传失败");
+    } finally {
+      setUploading(false);
+      if (contentImgRef.current) contentImgRef.current.value = "";
     }
   }
 
@@ -130,7 +151,10 @@ export default function Page() {
           {editing.cover_image ? <img src={editing.cover_image} alt="封面预览" style={{ marginTop: 8, width: 220, height: 138, objectFit: "cover", borderRadius: 10, border: "1px solid var(--border,#e5e5e5)" }}/> : <small style={{ opacity: .6 }}>留空时前台按分类自动配默认封面图</small>}
         </label>
         <label className="wide">摘要（SEO description）<textarea className="field" rows={2} value={editing.summary || ""} onChange={e => set("summary", e.target.value)}/></label>
-        <label className="wide">正文（Markdown）<textarea className="field" rows={12} value={editing.content || ""} onChange={e => set("content", e.target.value)}/></label>
+        <label className="wide">正文（Markdown）<div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
+          <button type="button" className="btn btn-soft" disabled={uploading} onClick={() => contentImgRef.current?.click()}><Upload size={15}/>{uploading ? "上传中…" : "正文插图"}</button>
+          <input ref={contentImgRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={e => uploadContentImage(e.target.files?.[0])}/>
+        </div><textarea className="field" rows={12} value={editing.content || ""} onChange={e => set("content", e.target.value)}/></label>
         {editing.id && <div className="wide operator-card"><span>创建人：{editing.created_by || "—"}</span><span>最后处理：{editing.updated_by || "—"}</span></div>}
         {error && <div className="error wide">{error}</div>}
         <button className="btn btn-accent" type="submit"><Save size={16}/>保存</button>

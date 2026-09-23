@@ -2518,6 +2518,29 @@ def seed():
         contact_email_setting = db.query(SiteSetting).filter(SiteSetting.key == "contact_email").first()
         if contact_email_setting and str(contact_email_setting.value).strip().lower() == "plynook001@gmail.com":
             contact_email_setting.value = "cooolmake001@gmail.com"
+        # Guides：首次启动时把 content/guides 下的 md 指南导入文章表（已存在的 slug 不覆盖，之后由后台管理）
+        guides_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "content", "guides")
+        if os.path.isdir(guides_dir):
+            for file_name in sorted(os.listdir(guides_dir)):
+                if not file_name.endswith(".md"): continue
+                slug = file_name[:-3]
+                if db.query(Article).filter(Article.slug == slug).first(): continue
+                raw = open(os.path.join(guides_dir, file_name), encoding="utf-8").read()
+                meta = {}
+                body = raw
+                front = re.match(r"^---\r?\n(.*?)\r?\n---\r?\n?(.*)$", raw, re.S)
+                if front:
+                    body = front.group(2)
+                    for line in front.group(1).splitlines():
+                        kv = re.match(r"^([A-Za-z_][\w-]*)\s*:\s*(.*)$", line.strip())
+                        if kv: meta[kv.group(1)] = kv.group(2).strip().strip('"\'')
+                published_at = datetime.strptime(meta.get("date", ""), "%Y-%m-%d") if meta.get("date") else datetime.utcnow()
+                db.add(Article(
+                    slug=slug, title=meta.get("title", slug), summary=meta.get("description") or None,
+                    content=body.strip() or None, category=meta.get("category") or "Guides",
+                    keywords=meta.get("keywords") or None, cover_image=meta.get("cover") or None,
+                    is_published=True, published_at=published_at,
+                ))
         if os.getenv("ENABLE_DEMO_SEED", "").lower() in {"1", "true", "yes"} and not db.query(Category).first():
             cats = [Category(slug="art-toys", name_en="Art Toys", name_ja="アートトイ", name_ko="아트 토이", name_zh="潮玩摆件", description_en="Collectible characters with a playful point of view."), Category(slug="home-decor", name_en="Home Decor", name_ja="ホームデコ", name_ko="홈 데코", name_zh="家居装饰", description_en="Small objects that make a room feel yours."), Category(slug="desk-accessories", name_en="Desk Accessories", name_ja="デスク用品", name_ko="데스크 용품", name_zh="桌面用品", description_en="Tiny upgrades for better desk days."), Category(slug="gifts", name_en="Gifts", name_ja="ギフト", name_ko="선물", name_zh="礼品", description_en="Unexpected gifts for delightful people.")]
             db.add_all(cats); db.flush()
