@@ -33,15 +33,17 @@ export function formatWeight(weightValue: string, locale: Locale = "zh"): string
   return `${Number.isInteger(grams) ? grams : grams.toFixed(1)} g`;
 }
 
-// 后端统一以厘米存储尺寸（如 "18 × 10 × 9 cm"）；en 前台转英寸，其余语言保持原样
+// 后端统一以厘米存储尺寸（如 "18 × 10 × 9 cm"、"30"）；en 前台转英寸，其余语言保持原样
 export function formatSize(sizeValue: string, locale: Locale = "zh"): string {
   if (!sizeValue) return "";
   const trimmed = String(sizeValue).trim();
   if (locale !== "en" || hasImperialUnit(trimmed)) return trimmed;
-  if (!/cm/i.test(trimmed)) return trimmed; // 没有单位标记的值不盲转
 
-  // "18 × 10 × 9 cm"：换算串中所有数字，单位 cm 改为 in
+  // 去掉 cm 单位和分隔符后应只剩数字（"18 × 10 × 9 cm"、"30"、"16×14"），否则视为非尺寸文本不转换
   const withoutUnit = trimmed.replace(/\s*cm/gi, "");
+  const digitsOnly = withoutUnit.replace(/[×x*×\s]/gi, "");
+  if (!/^[\d.,;/-]+$/.test(digitsOnly) || !/\d/.test(digitsOnly)) return trimmed;
+
   return withoutUnit.replace(/\d+(?:\.\d+)?/g, cm => {
     const inches = parseFloat(cm) / CM_PER_INCH;
     return inches >= 10 ? inches.toFixed(1) : inches.toFixed(2);
