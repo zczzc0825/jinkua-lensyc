@@ -656,6 +656,40 @@ body .product-card:hover .product-image img {
   transform: scale(1.03);
 }
 
+body .card-media {
+  position: relative;
+}
+
+body .card-wish {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--atelier-line);
+  border-radius: 999px;
+  background: var(--atelier-paper);
+  color: var(--atelier-ink);
+  cursor: pointer;
+  transition: border-color .2s ease, transform .15s ease;
+}
+
+body .card-wish:hover {
+  border-color: var(--atelier-ink);
+  transform: scale(1.06);
+}
+
+body .card-wish svg {
+  fill: none;
+}
+
+body .card-wish[aria-pressed="true"] svg {
+  fill: currentColor;
+}
+
 body .badges {
   top: 12px;
   left: 12px;
@@ -682,17 +716,6 @@ body .product-info {
   text-align: left;
 }
 
-.product-card-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 9px;
-  color: var(--atelier-muted);
-  font-size: 8px;
-  letter-spacing: .13em;
-  text-transform: uppercase;
-}
-
 body .product-info h3,
 html[data-theme="dark"] body .product-info h3 {
   min-height: 0;
@@ -705,21 +728,15 @@ html[data-theme="dark"] body .product-info h3 {
   letter-spacing: -.025em;
 }
 
-body .product-info p,
-html[data-theme="dark"] body .product-info p {
-  min-height: 44px;
-  margin: 0 0 14px;
-  color: var(--atelier-muted);
-  font-size: 12px;
-  line-height: 1.55;
-  -webkit-line-clamp: 2;
-}
-
 body .price-row {
   min-height: 0;
   margin: auto 0 16px;
   padding-top: 13px;
-  align-items: flex-start;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
   border-top: 1px solid var(--atelier-line);
 }
 
@@ -737,26 +754,6 @@ html[data-theme="dark"] body .shipping-note {
   color: var(--atelier-muted);
   font-size: 9px;
   font-weight: 400;
-}
-
-body .product-actions-single .btn {
-  min-height: 42px;
-  width: 100%;
-  padding: 10px 12px;
-  justify-content: flex-start;
-  border: 1px solid var(--atelier-line);
-  background: transparent;
-  color: var(--atelier-ink);
-}
-
-body .product-actions-single .btn:hover {
-  border-color: var(--atelier-ink);
-  background: var(--atelier-ink);
-  color: var(--atelier-paper);
-}
-
-.product-action-arrow {
-  margin-left: auto;
 }
 
 /* Category directory */
@@ -2126,26 +2123,9 @@ html[data-theme="dark"] body .footer a.footer-email {
     font-size: 18px;
   }
 
-  body .product-info p {
-    display: none;
-  }
-
-  .product-card-meta span:last-child,
   body .shipping-free svg,
   body .shipping-note svg {
     display: none;
-  }
-
-  body .price-row {
-    min-height: 54px;
-    margin-top: 8px;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  body .product-actions-single .btn {
-    min-height: 38px;
-    font-size: 9px;
   }
 
   body .category-directory-section,

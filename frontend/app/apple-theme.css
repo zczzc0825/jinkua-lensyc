@@ -3780,12 +3780,6 @@ html[data-theme="light"][data-device^="phone"] .product-detail-page .product-id-
   background: #0077ed;
 }
 
-html[data-theme="dark"] .search-submit {
-  background: #0a84ff;
-  color: #fff;
-  box-shadow: 0 12px 28px rgba(10, 132, 255, .22);
-}
-
 @media (max-width: 700px) {
   .search-box {
     width: 100%;
