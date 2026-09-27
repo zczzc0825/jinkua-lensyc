@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { Heart, Languages, Mail, Menu, MessageCircle, Moon, Sun, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Swiper from "swiper";
+import { Autoplay, Navigation } from "swiper/modules";
+import "swiper/css";
 import { Locale } from "@/lib/types";
 import { locales, t } from "@/lib/i18n";
 import { api } from "@/lib/api";
@@ -15,6 +18,55 @@ function externalUrl(value: unknown) {
   const url = value.trim();
   if (!url) return "";
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+}
+
+const serviceMessages = [
+  "Independent objects, thoughtfully selected",
+  "Worldwide delivery · Personal sourcing",
+];
+
+const chevronLeftPath = "M14.0962 16.7175C13.901 16.9128 13.5844 16.9128 13.3891 16.7175L9.14648 12.4749C8.95122 12.2796 8.95122 11.963 9.14648 11.7678L13.3891 7.52512C13.5844 7.32986 13.901 7.32986 14.0962 7.52512C14.2915 7.72038 14.2915 8.03696 14.0962 8.23222L10.2071 12.1213L14.0962 16.0104C14.2915 16.2057 14.2915 16.5222 14.0962 16.7175Z";
+const chevronRightPath = "M10.1464 7.52512C10.3417 7.32986 10.6583 7.32986 10.8536 7.52512L15.0962 11.7678C15.2915 11.963 15.2915 12.2796 15.0962 12.4749L10.8536 16.7175C10.6583 16.9128 10.3417 16.9128 10.1464 16.7175C9.95118 16.5222 9.95118 16.2057 10.1464 16.0104L14.0355 12.1213L10.1464 8.23223C9.95118 8.03697 9.95118 7.72039 10.1464 7.52512Z";
+
+function ServiceBar() {
+  const swiperRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const el = swiperRef.current;
+    if (!el) return;
+    const swiper = new Swiper(el, {
+      modules: [Autoplay, Navigation],
+      loop: true,
+      slidesPerView: 1,
+      speed: 300,
+      autoplay: { delay: 5000, disableOnInteraction: false },
+      navigation: {
+        prevEl: el.querySelector<HTMLElement>(".swiper-prev-button"),
+        nextEl: el.querySelector<HTMLElement>(".swiper-next-button"),
+      },
+    });
+    return () => swiper.destroy(true, true);
+  }, []);
+
+  return <div className="service-bar swiper" ref={swiperRef}>
+    <div className="swiper-wrapper">
+      {serviceMessages.map(message => (
+        <div className="swiper-slide service-bar-slide" key={message}>
+          <p className="service-bar-text">{message}</p>
+        </div>
+      ))}
+    </div>
+    <button className="swiper-prev-button" type="button">
+      <svg className="fill-current" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path clipRule="evenodd" d={chevronLeftPath} fill="currentColor" fillRule="evenodd" />
+      </svg>
+    </button>
+    <button className="swiper-next-button" type="button">
+      <svg className="fill-current" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path clipRule="evenodd" d={chevronRightPath} fill="currentColor" fillRule="evenodd" />
+      </svg>
+    </button>
+  </div>;
 }
 
 export function Header({ locale }: { locale: Locale }) {
@@ -48,10 +100,7 @@ export function Header({ locale }: { locale: Locale }) {
   </>;
 
   return <header className="site-header">
-    <div className="service-bar">
-      <span>Independent objects, thoughtfully selected</span>
-      <span>Worldwide delivery · Personal sourcing</span>
-    </div>
+    <ServiceBar />
     <nav className="nav">
       <Link className="brand-logo brand-slot" href={`/${locale}`} aria-label="cooolmake home">
         <img className="brand-logo-light" src="/brand/logo_black.png" alt="" aria-hidden="true" />
