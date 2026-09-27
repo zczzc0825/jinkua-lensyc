@@ -1,16 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Copy, Facebook, MessageCircle, Share2 } from "lucide-react";
+import { Copy, Facebook, Heart, MessageCircle, Share2 } from "lucide-react";
 import { api, sessionId } from "@/lib/api";
 import { t } from "@/lib/i18n";
 import { Locale, Product } from "@/lib/types";
 import { useWhatsAppPhone } from "./SiteSettingsProvider";
+import { useWishlist } from "./WishlistProvider";
 import { copyToClipboard } from "@/lib/secure";
 
 export function ProductDetailActions({ product, locale }: { product: Product; locale: Locale }) {
   const m = t(locale);
   const phone = useWhatsAppPhone();
+  const { items, add, remove } = useWishlist();
+  const saved = items.some(item => item.product.id === product.id);
+  const toggleSaved = () => {
+    api.event({ session_id: sessionId(), event_type: saved ? "wishlist_remove" : "wishlist_add", product_id: product.id, locale, page_url: location.href }).catch(() => {});
+    if (saved) remove(product.id);
+    else add(product);
+  };
   const [shareNote, setShareNote] = useState("");
   const [shareOpen, setShareOpen] = useState(false);
   const shareText = {
@@ -64,7 +72,12 @@ export function ProductDetailActions({ product, locale }: { product: Product; lo
   };
 
   return <div className="detail-actions">
-    <a className="btn btn-accent" href={askHref} target="_blank" rel="noopener noreferrer" onClick={() => { api.event({ session_id: sessionId(), event_type: "whatsapp_click", product_id: product.id, locale, page_url: pageUrl }).catch(() => {}); }}><MessageCircle size={18} />{m.ask}</a>
+    <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+      <button type="button" className={`btn ${saved ? "btn-soft" : "btn-accent"}`} aria-pressed={saved} aria-label={saved ? m.added : m.add} onClick={toggleSaved}>
+        <Heart size={18} fill={saved ? "currentColor" : "none"} />{saved ? m.added : m.add}
+      </button>
+      <a className="btn btn-soft" href={askHref} target="_blank" rel="noopener noreferrer" onClick={() => { api.event({ session_id: sessionId(), event_type: "whatsapp_click", product_id: product.id, locale, page_url: pageUrl }).catch(() => {}); }}><MessageCircle size={18} />{m.ask}</a>
+    </div>
     <div className="detail-extra">
       <button className="btn btn-soft detail-extra-btn" onClick={() => setShareOpen(open => !open)} aria-label={shareText.label} aria-expanded={shareOpen}><Share2 size={18} />{shareText.label}</button>
       {shareOpen && <div className="detail-extra-menu">
